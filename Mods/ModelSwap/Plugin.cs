@@ -104,22 +104,27 @@ public class Plugin : BasePlugin
     [HarmonyPrefix]
     public static void MainGameManager__LoadPlayer_Prefix() => LoadPlayerStep = 1;
 
-    [HarmonyPatch(typeof(MainGameManager), "_LoadPartner")]
-    [HarmonyPrefix]
-    public static void MainGameManager__LoadPartner_Prefix()
+    [HarmonyPatch(typeof(MainGameManager._LoadTask_d__3), "MoveNext")]
+    [HarmonyPostfix]
+    public static void MainGameManager__LoadPartner_Postfix(MainGameManager._LoadTask_d__3 __instance)
     {
-        // Force radius to be the same as the normal player model, otherwise big model will not be able to talk with NPCs.
-        MainGameManager.GetPlayerCtrl().m_move.currentAgentRadius = 0.5f;
-
-        if (ModelID.Value == "z010" && RemoveMireiHologramEffect.Value)
+        switch (__instance.__1__state)
         {
-            var mesh = MainGameManager.GetPlayer().transform.GetChild(0).gameObject.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject;
-            var materials = mesh.GetComponent<UnityEngine.SkinnedMeshRenderer>().materials;
-            for (int i = 0; i < materials.Length; i++)
-            {
-                materials[i].SetColor("_ScanLine_Color", new Color(0, 0, 0, 0));
-                materials[i].SetColor("_Noise_Color", new Color(0, 0, 0, 0));
-            }
+            case -1:
+                // Force radius to be the same as the normal player model, otherwise big model will not be able to talk with NPCs.
+                MainGameManager.GetPlayerCtrl().m_move.currentAgentRadius = 0.5f;
+
+                if (ModelID.Value == "z010" && RemoveMireiHologramEffect.Value)
+                {
+                    var mesh = MainGameManager.GetPlayer().transform.GetChild(0).gameObject.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject;
+                    var materials = mesh.GetComponent<UnityEngine.SkinnedMeshRenderer>().materials;
+                    for (int i = 0; i < materials.Length; i++)
+                    {
+                        materials[i].SetColor("_ScanLine_Color", new Color(0, 0, 0, 0));
+                        materials[i].SetColor("_Noise_Color", new Color(0, 0, 0, 0));
+                    }
+                }
+                break;
         }
     }
 
