@@ -106,7 +106,7 @@ public class Plugin : BasePlugin
 
     [HarmonyPatch(typeof(MainGameManager._LoadTask_d__3), "MoveNext")]
     [HarmonyPostfix]
-    public static void MainGameManager__LoadPartner_Postfix(MainGameManager._LoadTask_d__3 __instance)
+    public static void MainGameManager__LoadTask_d__3_MoveNext_Postfix(MainGameManager._LoadTask_d__3 __instance)
     {
         switch (__instance.__1__state)
         {
