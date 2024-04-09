@@ -8,7 +8,7 @@ namespace DeathSync;
 [BepInProcess("Digimon World Next Order.exe")]
 public class Plugin : BasePlugin
 {
-    internal const string GUID = "DeathSync";
+    internal const string GUID = "poyoyuoh.DWNO.DeathSync";
     internal const string PluginName = "DeathSync";
     internal const string PluginVersion = "1.0.0";
 
