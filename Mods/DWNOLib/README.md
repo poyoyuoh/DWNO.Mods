@@ -8,11 +8,11 @@
  The library is currently in ALPHA stage, as such, it is not recommended to use it, as many thing will change/break.
 
 # TODO (For BETA stage)
- HIGH PRIORITY:
- - Finish the save system. Currently not everything is saved/loaded.
- - Find a way to make AssetBundle of digimon work when creating them from unity. (not directly related to the library, but essential)
- - Make a class Database of all the original parameter.
- Medium priority:
+ ### HIGH PRIORITY:
+  - Finish the save system. Currently not everything is saved/loaded.
+  - Find a way to make AssetBundle of digimon work when creating them from unity. (not directly related to the library, but essential)
+  - Make a class Database of all the original parameter.
+ ### Medium priority:
  - Allow creating new item, and add/edit existing item data type. (Food, Material, KeyItem, etc...)
  - Add a way to remove original parameters. (Common window, placements, shop, etc...)
  - Make editing original talk event possible. (The csvb file for them are inside the talkMain class)
@@ -20,7 +20,7 @@
  - Allow adding/changing Player level parameters.
  - Add support for "scenario-like" dialog to DialogManager.
  - Integrate CriBindDir into the library.
- Low priority:
+ ### Low priority:
  - Bugfix: fix the error spam after a battle or action. This is from base game. Probably related to animation.
  - Comment the codes.
  - Make a documentation on how to use the library.
