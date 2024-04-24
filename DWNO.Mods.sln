@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TamerExpMultiplier", "Mods\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeathSync", "Mods\DeathSync\DeathSync.csproj", "{58C6E26C-6185-4732-9227-63CE108EF6EE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DWNOLib", "Mods\DWNOLib\DWNOLib.csproj", "{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{58C6E26C-6185-4732-9227-63CE108EF6EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58C6E26C-6185-4732-9227-63CE108EF6EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58C6E26C-6185-4732-9227-63CE108EF6EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
