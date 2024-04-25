@@ -56,4 +56,11 @@ internal class StorageDataPatch
         }
         return true;
     }
+
+    [HarmonyPatch(typeof(StorageData.CSaveDataHeader), "ReadSaveData")]
+    [HarmonyPostfix]
+    private static void StorageData_CSaveDataHeader_ReadSaveData_Postfix(StorageData.CSaveDataHeader __instance)
+    {
+        __instance.m_isMatchStaemId = true;
+    }
 }
