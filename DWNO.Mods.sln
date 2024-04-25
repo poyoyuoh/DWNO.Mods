@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeathSync", "Mods\DeathSync
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DWNOLib", "Mods\DWNOLib\DWNOLib.csproj", "{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Randomizer", "Mods\Randomizer\Randomizer.csproj", "{ABE36B0E-225F-4397-BF6C-C310EB55440B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BEF3372-C4BD-4FEB-8C95-00C332C1DE4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABE36B0E-225F-4397-BF6C-C310EB55440B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABE36B0E-225F-4397-BF6C-C310EB55440B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABE36B0E-225F-4397-BF6C-C310EB55440B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABE36B0E-225F-4397-BF6C-C310EB55440B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
