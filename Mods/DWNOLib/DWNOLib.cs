@@ -14,7 +14,7 @@ public class DWNOLib : BasePlugin
 {
     internal const string GUID = "poyoyuoh.DWNO.DWNOLib";
     internal const string PluginName = "DWNOLib";
-    internal const string PluginVersion = "0.2.0";
+    internal const string PluginVersion = "0.2.1";
 
     public static GameObject Canvas {  get; private set; }
 
@@ -39,7 +39,9 @@ public class DWNOLib : BasePlugin
             "****************************************************" + "***************************************************",
             ConsoleColor.Cyan,
             "Special");
-        
+
+        Logger.Log("DWNOLib is currently in alpha, DO NOT USE IN PRODUCTION!");
+
         if (Debug)
             UnitTests.Start();
 
