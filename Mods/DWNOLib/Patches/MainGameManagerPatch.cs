@@ -27,14 +27,20 @@ internal class MainGameManagerPatch
         {
             if (__instance.__4__this._IsLoadEndNpcPlacementData())
             {
-                ParameterManagerLoader.LoadNPCPlacementDatas(true, __instance.__4__this.nextMapNo, __instance.__4__this.nextAreaNo, true, __instance.__4__this);
+                if (__instance.__4__this.m_nextMapReq)
+                    ParameterManagerLoader.LoadNPCPlacementDatas(true, __instance.__4__this.nextMapNo, __instance.__4__this.nextAreaNo, true, __instance.__4__this);
+                else
+                    ParameterManagerLoader.LoadNPCPlacementDatas(true, __instance.__4__this.mapNo, __instance.__4__this.areaNo, true, __instance.__4__this);
             }
         }
         if ((__instance.state & AssetPlacementLoadState.LoadStateEnemyPlacementData) == AssetPlacementLoadState.LoadStateEnemyPlacementData)
         {
             if (__instance.__4__this._IsLoadEndEnemyPlacementData())
             {
-                ParameterManagerLoader.LoadEnemyPlacementDatas(true, __instance.__4__this.nextMapNo, __instance.__4__this.nextAreaNo, true, __instance.__4__this);
+                if (__instance.__4__this.m_nextMapReq)
+                    ParameterManagerLoader.LoadEnemyPlacementDatas(true, __instance.__4__this.nextMapNo, __instance.__4__this.nextAreaNo, true, __instance.__4__this);
+                else
+                    ParameterManagerLoader.LoadEnemyPlacementDatas(true, __instance.__4__this.mapNo, __instance.__4__this.areaNo, true, __instance.__4__this);
             }
         }
     }

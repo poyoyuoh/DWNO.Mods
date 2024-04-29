@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using UnityEngine;
@@ -49,7 +51,17 @@ public class StorageDataLib
         }
     }
 
-    private static Dictionary<string, object> buffer = new Dictionary<string, object>();
+    public const int SYSTEM_SAVE_FILE_VERSION = 1;
+
+    public const int GAME_SAVE_FILE_VERSION = 1;
+
+    public static int LoadedSystemSaveFileVersion { get; set; } = GAME_SAVE_FILE_VERSION;
+
+    public static int LoadedGameSaveFileVersion { get; set; } = GAME_SAVE_FILE_VERSION;
+
+    private static Dictionary<string, object> system_buffer { get; set; } = new Dictionary<string, object>();
+
+    private static Dictionary<string, object> game_buffer { get; set; } = new Dictionary<string, object>();
 
     public static bool IsExistSystemData()
     {
@@ -66,7 +78,7 @@ public class StorageDataLib
 
     public static bool WriteSystemData()
     {
-        string jsonstring = JsonSerializer.Serialize(buffer, new JsonSerializerOptions { WriteIndented = true });
+        string jsonstring = JsonSerializer.Serialize(system_buffer, new JsonSerializerOptions { WriteIndented = true });
         string savepath = AppMainScript.m_instance.m_unitySaveDataPath + "SystemSaveData.json";
         File.WriteAllText(savepath, jsonstring);
         return true;
@@ -77,6 +89,8 @@ public class StorageDataLib
         JsonNode data = ReadSystemData();
 
         StorageData.m_SystemDataVersion = 2;
+
+        LoadedSystemSaveFileVersion = (int)data["DWNOLib"]["SystemSaveFileVersion"];
 
         StorageData.m_optionData.m_OptionData.m_isAgreeEula = (bool)data["m_OptionData"]["Others"]["m_isAgreeEula"];
         StorageData.m_optionData.m_OptionData.m_isAgreeKPI = (bool)data["m_OptionData"]["Others"]["m_isAgreeKPI"];
@@ -115,8 +129,13 @@ public class StorageDataLib
 
     public static void SaveSystemData()
     {
-        buffer.Clear();
-        
+        system_buffer.Clear();
+
+        Dictionary<string, object> dwnolib = new Dictionary<string, object>();
+        dwnolib["PluginVersion"] = DWNOLib.PluginVersion;
+        dwnolib["SystemSaveFileVersion"] = SYSTEM_SAVE_FILE_VERSION;
+        system_buffer["DWNOLib"] = dwnolib;
+
         Dictionary<string, object> m_OptionData = new Dictionary<string, object>();
 
         Dictionary<string, object> Others = new Dictionary<string, object>();
@@ -161,7 +180,7 @@ public class StorageDataLib
         KeyConfig["m_Mouse"] = m_Mouse;
         m_OptionData["KeyConfig"] = KeyConfig;
 
-        buffer["m_OptionData"] = m_OptionData;
+        system_buffer["m_OptionData"] = m_OptionData;
     }
 
     public static bool IsExistGameData(int slot_no)
@@ -181,7 +200,7 @@ public class StorageDataLib
 
     public static bool WriteSaveData(int slot_no)
     {
-        string jsonstring = JsonSerializer.Serialize(buffer, new JsonSerializerOptions { WriteIndented = true });
+        string jsonstring = JsonSerializer.Serialize(game_buffer, new JsonSerializerOptions { WriteIndented = true });
         string savepath = AppMainScript.m_instance.GetSaveFilePath(slot_no);
         savepath = savepath.Remove(savepath.Length - 4);
         File.WriteAllText(savepath + "json", jsonstring);
@@ -194,74 +213,140 @@ public class StorageDataLib
 
         StorageData.m_GameDataVersion = 5;
 
+        LoadedGameSaveFileVersion = (int)data["DWNOLib"]["GameSaveFileVersion"];
+
         if (!LoadPlayerData(data))
             return false;
 
-        for (int i = 0; i < StorageData.m_playerData.m_partners.Length; i++)
-        {
-            if (!LoadPartnerData(i, data))
-                return false;
-        }
+        if (!LoadPartnerData(data))
+            return false;
+
+        if (!LoadWorldData(data))
+            return false;
+
+        if (!LoadMapData(data))
+            return false;
+
+        if (!LoadItemPickPointData(data))
+            return false;
 
         return true;
     }
 
     public static void SaveSaveData()
     {
-        buffer.Clear();
+        game_buffer.Clear();
 
-        SavePlayerData(buffer);
-        for (int i = 0; i < StorageData.m_playerData.m_partners.Length; i++)
+        Dictionary<string, object> dwnolib = new Dictionary<string, object>();
+        dwnolib["PluginVersion"] = DWNOLib.PluginVersion;
+        dwnolib["GameSaveFileVersion"] = GAME_SAVE_FILE_VERSION;
+        game_buffer["DWNOLib"] = dwnolib;
+
+        SaveSaveFileInfo(game_buffer);
+        SavePlayerData(game_buffer);
+        SavePartnerData(game_buffer);
+        SaveWorldData(game_buffer);
+        SaveMapData(game_buffer);
+        SaveItemPickPointData(game_buffer);
+    }
+
+    /// <summary>
+    /// This is just a code example to copy-paste.
+    /// </summary>
+    private static bool LoadExampleData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    /// <summary>
+    /// This is just a code example to copy-paste.
+    /// </summary>
+    private static void SaveExampleData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static void SaveSaveFileInfo(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> SaveFileInfo = new Dictionary<string, object>();
+
+        SaveFileInfo["m_name"] = StorageData.m_playerData.m_Name;
+        SaveFileInfo["m_gender"] = StorageData.m_playerData.m_Gender;
+        SaveFileInfo["m_level"] = StorageData.m_playerData.m_level;
+        SaveFileInfo["m_partnerR"] = StorageData.m_playerData.m_partners[0].m_commonData.m_baseID;
+        SaveFileInfo["m_partnerL"] = StorageData.m_playerData.m_partners[1].m_commonData.m_baseID;
+        SaveFileInfo["m_mapNo"] = StorageData.m_mapData.m_mapNo;
+        SaveFileInfo["m_areaNo"] = StorageData.m_mapData.m_areaNo;
+
+        bool flag = false;
+        if (StorageData.m_mapData.m_mapNo == 1 && StorageData.m_mapData.m_areaNo == 10)
         {
-            SavePartnerData(i, buffer);
+            TownGradeUpDataAccess gradeUpData = StorageData.m_gradeUpData;
+            if (gradeUpData != null)
+            {
+                TownGradeUpData townGradeUpData = gradeUpData.GetTownGradeUpData(ParameterTownGradeUpData.TownGradeUpKindIndex.CenterGradeUp);
+                if (townGradeUpData != null)
+                {
+                    flag = townGradeUpData.m_current_grade_imp > 1;
+                }
+            }
         }
+        SaveFileInfo["TownGradeUp"] = flag;
+
+        SaveFileInfo["m_PlayTime"] = StorageData.m_PlayTimeData.m_PlayTime;
+        SaveFileInfo["m_timeStamp"] = DateTime.Now.ToBinary();
+
+        game_buffer["SaveFileInfo"] = SaveFileInfo;
     }
 
     private static bool LoadPlayerData(JsonNode data)
     {
-        StorageData.m_playerData.m_Name = (string)data["playerData"]["m_Name"];
-        StorageData.m_playerData.m_Gender = (int)data["playerData"]["m_Gender"];
-        StorageData.m_playerData.m_Money = (uint)data["playerData"]["m_Money"];
-        StorageData.m_playerData.m_DailyQuestPoint = (uint)data["playerData"]["m_DailyQuestPoint"];
-        StorageData.m_playerData.m_Coin = (uint)data["playerData"]["m_Coin"];
-        StorageData.m_playerData.m_exp = (int)data["playerData"]["m_exp"];
-        StorageData.m_playerData.m_exp_walk = (int)data["playerData"]["m_exp_walk"];
-        StorageData.m_playerData.m_exp_walk_distance = (float)data["playerData"]["m_exp_walk_distance"];
-        StorageData.m_playerData.m_level = (int)data["playerData"]["m_level"];
-        StorageData.m_playerData.m_skillPoint = (int)data["playerData"]["m_skillPoint"];
-        StorageData.m_playerData.m_isUseExe = (bool)data["playerData"]["m_isUseExe"];
-        StorageData.m_playerData.m_battleCameraType = (int)data["playerData"]["m_battleCameraType"];
-        StorageData.m_playerData.m_extraJoglessWaitTime = (float)data["playerData"]["m_extraJoglessWaitTime"];
-        StorageData.m_playerData.m_TownDevelopPoint = (uint)data["playerData"]["m_TownDevelopPoint"];
-        StorageData.m_playerData.m_tent_item_id = (uint)data["playerData"]["m_tent_item_id"];
-        StorageData.m_playerData.m_tent_hp = (int)data["playerData"]["m_tent_hp"];
-        StorageData.m_playerData.m_tent_hp_max = (int)data["playerData"]["m_tent_hp_max"];
-        StorageData.m_playerData.m_educationTotalCount = (int)data["playerData"]["m_educationTotalCount"];
-        StorageData.m_playerData.m_bestHp = (int)data["playerData"]["m_bestHp"];
-        StorageData.m_playerData.m_bestMp = (int)data["playerData"]["m_bestMp"];
-        StorageData.m_playerData.m_bestForcefulness = (int)data["playerData"]["m_bestForcefulness"];
-        StorageData.m_playerData.m_bestRobustness = (int)data["playerData"]["m_bestRobustness"];
-        StorageData.m_playerData.m_bestCleverness = (int)data["playerData"]["m_bestCleverness"];
-        StorageData.m_playerData.m_bestRapidity = (int)data["playerData"]["m_bestRapidity"];
-        StorageData.m_playerData.m_bestAge = (int)data["playerData"]["m_bestAge"];
-        StorageData.m_playerData.m_bestForcefulness = (int)data["playerData"]["m_bestForcefulness"];
+        StorageData.m_playerData.m_Name = (string)data["m_playerData"]["m_Name"];
+        StorageData.m_playerData.m_Gender = (int)data["m_playerData"]["m_Gender"];
+        StorageData.m_playerData.m_Money = (uint)data["m_playerData"]["m_Money"];
+        StorageData.m_playerData.m_DailyQuestPoint = (uint)data["m_playerData"]["m_DailyQuestPoint"];
+        StorageData.m_playerData.m_Coin = (uint)data["m_playerData"]["m_Coin"];
+        StorageData.m_playerData.m_exp = (int)data["m_playerData"]["m_exp"];
+        StorageData.m_playerData.m_exp_walk = (int)data["m_playerData"]["m_exp_walk"];
+        StorageData.m_playerData.m_exp_walk_distance = (float)data["m_playerData"]["m_exp_walk_distance"];
+        StorageData.m_playerData.m_level = (int)data["m_playerData"]["m_level"];
+        StorageData.m_playerData.m_skillPoint = (int)data["m_playerData"]["m_skillPoint"];
+        StorageData.m_playerData.m_isUseExe = (bool)data["m_playerData"]["m_isUseExe"];
+        StorageData.m_playerData.m_battleCameraType = (int)data["m_playerData"]["m_battleCameraType"];
+        StorageData.m_playerData.m_extraJoglessWaitTime = (float)data["m_playerData"]["m_extraJoglessWaitTime"];
+        StorageData.m_playerData.m_TownDevelopPoint = (uint)data["m_playerData"]["m_TownDevelopPoint"];
+        StorageData.m_playerData.m_tent_item_id = (uint)data["m_playerData"]["m_tent_item_id"];
+        StorageData.m_playerData.m_tent_hp = (int)data["m_playerData"]["m_tent_hp"];
+        StorageData.m_playerData.m_tent_hp_max = (int)data["m_playerData"]["m_tent_hp_max"];
+        StorageData.m_playerData.m_educationTotalCount = (int)data["m_playerData"]["m_educationTotalCount"];
+        StorageData.m_playerData.m_bestHp = (int)data["m_playerData"]["m_bestHp"];
+        StorageData.m_playerData.m_bestMp = (int)data["m_playerData"]["m_bestMp"];
+        StorageData.m_playerData.m_bestForcefulness = (int)data["m_playerData"]["m_bestForcefulness"];
+        StorageData.m_playerData.m_bestRobustness = (int)data["m_playerData"]["m_bestRobustness"];
+        StorageData.m_playerData.m_bestCleverness = (int)data["m_playerData"]["m_bestCleverness"];
+        StorageData.m_playerData.m_bestRapidity = (int)data["m_playerData"]["m_bestRapidity"];
+        StorageData.m_playerData.m_bestAge = (int)data["m_playerData"]["m_bestAge"];
+        StorageData.m_playerData.m_bestForcefulness = (int)data["m_playerData"]["m_bestForcefulness"];
 
         for (uint i = 0; i < StorageData.m_playerData.m_TamerSkillFlag.m_NumFlags; i++)
         {
-            StorageData.m_playerData.m_TamerSkillFlag[i] = (bool)data["playerData"]["m_TamerSkillFlag"][i.ToString()];
+            StorageData.m_playerData.m_TamerSkillFlag[i] = (bool)data["m_playerData"]["m_TamerSkillFlag"][i.ToString()];
         }
 
-        StorageData.m_playerData.m_partnersTrust = (int)data["playerData"]["m_partnersTrust"];
-        StorageData.m_playerData.m_educationTime = (float)data["playerData"]["m_educationTime"];
+        StorageData.m_playerData.m_partnersTrust = (int)data["m_playerData"]["m_partnersTrust"];
+        StorageData.m_playerData.m_educationTime = (float)data["m_playerData"]["m_educationTime"];
 
         for (int i = 0; i < StorageData.m_playerData.m_useDlcEgs.Count; i++)
         {
-            StorageData.m_playerData.m_useDlcEgs[i] = (bool)data["playerData"]["m_useDlcEgs"][i.ToString()];
+            StorageData.m_playerData.m_useDlcEgs[i] = (bool)data["m_playerData"]["m_useDlcEgs"][i.ToString()];
         }
 
         for (uint i = 0; i < StorageData.m_playerData.m_AttacSkillkFlag.m_NumFlags; i++)
         {
-            StorageData.m_playerData.m_AttacSkillkFlag[i] = (bool)data["playerData"]["m_AttacSkillkFlag"][i.ToString()];
+            StorageData.m_playerData.m_AttacSkillkFlag[i] = (bool)data["m_playerData"]["m_AttacSkillkFlag"][i.ToString()];
         }
 
         for (int i = 0; i < AppMainScript.parameterManager.m_DigimonID_LIST.Count; i++)
@@ -271,98 +356,98 @@ public class StorageDataLib
 
             for (uint j = 0; j < StorageDataLimits.max_condition_flag; j++)
             {
-                if (data["playerData"]["m_EvolutionConditionFlag"][AppMainScript.parameterManager.m_DigimonID_LIST[i].ToString()] != null)
-                    StorageData.m_playerData.m_EvolutionConditionFlag[i][j] = (bool)data["playerData"]["m_EvolutionConditionFlag"][AppMainScript.parameterManager.m_DigimonID_LIST[i].ToString()][j.ToString()];
+                if (data["m_playerData"]["m_EvolutionConditionFlag"][AppMainScript.parameterManager.m_DigimonID_LIST[i].ToString()] != null)
+                    StorageData.m_playerData.m_EvolutionConditionFlag[i][j] = (bool)data["m_playerData"]["m_EvolutionConditionFlag"][AppMainScript.parameterManager.m_DigimonID_LIST[i].ToString()][j.ToString()];
             }
         }
 
-        StorageData.m_playerData.m_RebornCt = (uint)data["playerData"]["m_RebornCt"];
+        StorageData.m_playerData.m_RebornCt = (uint)data["m_playerData"]["m_RebornCt"];
 
         for (uint i = 0; i < StorageData.m_playerData.m_TutorialAlready.m_NumFlags; i++)
         {
-            StorageData.m_playerData.m_TutorialAlready[i] = (bool)data["playerData"]["m_TutorialAlready"][i.ToString()];
+            StorageData.m_playerData.m_TutorialAlready[i] = (bool)data["m_playerData"]["m_TutorialAlready"][i.ToString()];
         }
 
-        StorageData.m_playerData.m_NumReleaseEvoFlag = (uint)data["playerData"]["m_NumReleaseEvoFlag"];
+        StorageData.m_playerData.m_NumReleaseEvoFlag = (uint)data["m_playerData"]["m_NumReleaseEvoFlag"];
 
         // Update001
-        StorageData.m_playerData.BattlePanelItemSort = (int)data["playerData"]["BattlePanelItemSort"];
-        StorageData.m_playerData.SalePanelItemSort = (int)data["playerData"]["SalePanelItemSort"];
+        StorageData.m_playerData.BattlePanelItemSort = (int)data["m_playerData"]["BattlePanelItemSort"];
+        StorageData.m_playerData.SalePanelItemSort = (int)data["m_playerData"]["SalePanelItemSort"];
 
         for (int i = 0; i < StorageData.m_playerData.CarePanelItemSort.Count; i++)
         {
-            StorageData.m_playerData.CarePanelItemSort[i] = (int)data["playerData"]["CarePanelItemSort"][i.ToString()];
+            StorageData.m_playerData.CarePanelItemSort[i] = (int)data["m_playerData"]["CarePanelItemSort"][i.ToString()];
         }
 
         for (int i = 0; i < StorageData.m_playerData.StoragePanelItemSort.Count; i++)
         {
-            StorageData.m_playerData.StoragePanelItemSort[i] = (int)data["playerData"]["StoragePanelItemSort"][i.ToString()];
+            StorageData.m_playerData.StoragePanelItemSort[i] = (int)data["m_playerData"]["StoragePanelItemSort"][i.ToString()];
         }
 
         // Update003
-        StorageData.m_playerData.m_IsRetryNewGame = (bool)data["playerData"]["m_IsRetryNewGame"];
+        StorageData.m_playerData.m_IsRetryNewGame = (bool)data["m_playerData"]["m_IsRetryNewGame"];
 
         // Complete
-        StorageData.m_playerData.Difficulty = (AppInfo.Difficulty)(int)data["playerData"]["Difficulty"];
-        StorageData.m_playerData.m_dayExECount = (uint)data["playerData"]["m_dayExECount"];
-        StorageData.m_playerData.m_StealthTime = (float)data["playerData"]["m_StealthTime"];
+        StorageData.m_playerData.Difficulty = (AppInfo.Difficulty)(int)data["m_playerData"]["Difficulty"];
+        StorageData.m_playerData.m_dayExECount = (uint)data["m_playerData"]["m_dayExECount"];
+        StorageData.m_playerData.m_StealthTime = (float)data["m_playerData"]["m_StealthTime"];
 
         return true;
     }
 
-    private static void SavePlayerData(Dictionary<string, object> buffer)
+    private static void SavePlayerData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> playerData = new Dictionary<string, object>();
-        playerData["m_Name"] = StorageData.m_playerData.m_Name;
-        playerData["m_Gender"] = StorageData.m_playerData.m_Gender;
-        playerData["m_Money"] = StorageData.m_playerData.m_Money;
-        playerData["m_DailyQuestPoint"] = StorageData.m_playerData.m_DailyQuestPoint;
-        playerData["m_Coin"] = StorageData.m_playerData.m_Coin;
-        playerData["m_exp"] = StorageData.m_playerData.m_exp;
-        playerData["m_exp_walk"] = StorageData.m_playerData.m_exp_walk;
-        playerData["m_exp_walk_distance"] = StorageData.m_playerData.m_exp_walk_distance;
-        playerData["m_level"] = StorageData.m_playerData.m_level;
-        playerData["m_skillPoint"] = StorageData.m_playerData.m_skillPoint;
-        playerData["m_isUseExe"] = StorageData.m_playerData.m_isUseExe;
-        playerData["m_battleCameraType"] = StorageData.m_playerData.m_battleCameraType;
-        playerData["m_extraJoglessWaitTime"] = StorageData.m_playerData.m_extraJoglessWaitTime;
-        playerData["m_TownDevelopPoint"] = StorageData.m_playerData.m_TownDevelopPoint;
-        playerData["m_tent_item_id"] = StorageData.m_playerData.m_tent_item_id;
-        playerData["m_tent_hp"] = StorageData.m_playerData.m_tent_hp;
-        playerData["m_tent_hp_max"] = StorageData.m_playerData.m_tent_hp_max;
-        playerData["m_educationTotalCount"] = StorageData.m_playerData.m_educationTotalCount;
-        playerData["m_bestHp"] = StorageData.m_playerData.m_bestHp;
-        playerData["m_bestMp"] = StorageData.m_playerData.m_bestMp;
-        playerData["m_bestForcefulness"] = StorageData.m_playerData.m_bestForcefulness;
-        playerData["m_bestRobustness"] = StorageData.m_playerData.m_bestRobustness;
-        playerData["m_bestCleverness"] = StorageData.m_playerData.m_bestCleverness;
-        playerData["m_bestRapidity"] = StorageData.m_playerData.m_bestRapidity;
-        playerData["m_bestAge"] = StorageData.m_playerData.m_bestAge;
-        playerData["m_bestForcefulness"] = StorageData.m_playerData.m_bestForcefulness;
+        Dictionary<string, object> m_playerData = new Dictionary<string, object>();
+        m_playerData["m_Name"] = StorageData.m_playerData.m_Name;
+        m_playerData["m_Gender"] = StorageData.m_playerData.m_Gender;
+        m_playerData["m_Money"] = StorageData.m_playerData.m_Money;
+        m_playerData["m_DailyQuestPoint"] = StorageData.m_playerData.m_DailyQuestPoint;
+        m_playerData["m_Coin"] = StorageData.m_playerData.m_Coin;
+        m_playerData["m_exp"] = StorageData.m_playerData.m_exp;
+        m_playerData["m_exp_walk"] = StorageData.m_playerData.m_exp_walk;
+        m_playerData["m_exp_walk_distance"] = StorageData.m_playerData.m_exp_walk_distance;
+        m_playerData["m_level"] = StorageData.m_playerData.m_level;
+        m_playerData["m_skillPoint"] = StorageData.m_playerData.m_skillPoint;
+        m_playerData["m_isUseExe"] = StorageData.m_playerData.m_isUseExe;
+        m_playerData["m_battleCameraType"] = StorageData.m_playerData.m_battleCameraType;
+        m_playerData["m_extraJoglessWaitTime"] = StorageData.m_playerData.m_extraJoglessWaitTime;
+        m_playerData["m_TownDevelopPoint"] = StorageData.m_playerData.m_TownDevelopPoint;
+        m_playerData["m_tent_item_id"] = StorageData.m_playerData.m_tent_item_id;
+        m_playerData["m_tent_hp"] = StorageData.m_playerData.m_tent_hp;
+        m_playerData["m_tent_hp_max"] = StorageData.m_playerData.m_tent_hp_max;
+        m_playerData["m_educationTotalCount"] = StorageData.m_playerData.m_educationTotalCount;
+        m_playerData["m_bestHp"] = StorageData.m_playerData.m_bestHp;
+        m_playerData["m_bestMp"] = StorageData.m_playerData.m_bestMp;
+        m_playerData["m_bestForcefulness"] = StorageData.m_playerData.m_bestForcefulness;
+        m_playerData["m_bestRobustness"] = StorageData.m_playerData.m_bestRobustness;
+        m_playerData["m_bestCleverness"] = StorageData.m_playerData.m_bestCleverness;
+        m_playerData["m_bestRapidity"] = StorageData.m_playerData.m_bestRapidity;
+        m_playerData["m_bestAge"] = StorageData.m_playerData.m_bestAge;
+        m_playerData["m_bestForcefulness"] = StorageData.m_playerData.m_bestForcefulness;
 
         Dictionary<uint, bool> m_TamerSkillFlag = new Dictionary<uint, bool>();
         for (uint i = 0; i < StorageData.m_playerData.m_TamerSkillFlag.m_NumFlags; i++)
         {
             m_TamerSkillFlag[i] = StorageData.m_playerData.m_TamerSkillFlag[i];
         }
-        playerData["m_TamerSkillFlag"] = m_TamerSkillFlag;
+        m_playerData["m_TamerSkillFlag"] = m_TamerSkillFlag;
 
-        playerData["m_partnersTrust"] = StorageData.m_playerData.m_partnersTrust;
-        playerData["m_educationTime"] = StorageData.m_playerData.m_educationTime;
+        m_playerData["m_partnersTrust"] = StorageData.m_playerData.m_partnersTrust;
+        m_playerData["m_educationTime"] = StorageData.m_playerData.m_educationTime;
 
         Dictionary<int, bool> m_useDlcEgs = new Dictionary<int, bool>();
         for (int i = 0; i < StorageData.m_playerData.m_useDlcEgs.Length; i++)
         {
             m_useDlcEgs[i] = StorageData.m_playerData.m_useDlcEgs[i];
         }
-        playerData["m_useDlcEgs"] = m_useDlcEgs;
+        m_playerData["m_useDlcEgs"] = m_useDlcEgs;
 
         Dictionary<uint, bool> m_AttacSkillkFlag = new Dictionary<uint, bool>();
         for (uint i = 0; i < StorageData.m_playerData.m_AttacSkillkFlag.m_NumFlags; i++)
         {
             m_AttacSkillkFlag[i] = StorageData.m_playerData.m_AttacSkillkFlag[i];
         }
-        playerData["m_AttacSkillkFlag"] = m_AttacSkillkFlag;
+        m_playerData["m_AttacSkillkFlag"] = m_AttacSkillkFlag;
 
         Dictionary<uint, Dictionary<uint, bool>> m_EvolutionConditionFlag = new Dictionary<uint, Dictionary<uint, bool>>();
         for (int i = 0; i < AppMainScript.parameterManager.m_DigimonID_LIST.Count; i++)
@@ -377,335 +462,838 @@ public class StorageDataLib
             }
             m_EvolutionConditionFlag[AppMainScript.parameterManager.m_DigimonID_LIST[i]] = m_EvolutionConditionFlag2;
         }
-        playerData["m_EvolutionConditionFlag"] = m_EvolutionConditionFlag;
+        m_playerData["m_EvolutionConditionFlag"] = m_EvolutionConditionFlag;
 
-        playerData["m_RebornCt"] = StorageData.m_playerData.m_RebornCt;
+        m_playerData["m_RebornCt"] = StorageData.m_playerData.m_RebornCt;
 
         Dictionary<uint, bool> m_TutorialAlready = new Dictionary<uint, bool>();
         for (uint i = 0; i < StorageData.m_playerData.m_TutorialAlready.m_NumFlags; i++)
         {
             m_TutorialAlready[i] = StorageData.m_playerData.m_TutorialAlready[i];
         }
-        playerData["m_TutorialAlready"] = m_TutorialAlready;
+        m_playerData["m_TutorialAlready"] = m_TutorialAlready;
 
-        playerData["m_NumReleaseEvoFlag"] = StorageData.m_playerData.m_NumReleaseEvoFlag;
+        m_playerData["m_NumReleaseEvoFlag"] = StorageData.m_playerData.m_NumReleaseEvoFlag;
 
         // Update001
-        playerData["BattlePanelItemSort"] = StorageData.m_playerData.BattlePanelItemSort;
-        playerData["SalePanelItemSort"] = StorageData.m_playerData.SalePanelItemSort;
+        m_playerData["BattlePanelItemSort"] = StorageData.m_playerData.BattlePanelItemSort;
+        m_playerData["SalePanelItemSort"] = StorageData.m_playerData.SalePanelItemSort;
 
         Dictionary<int, int> CarePanelItemSort = new Dictionary<int, int>();
         for (int i = 0; i < StorageData.m_playerData.CarePanelItemSort.Length; i++)
         {
             CarePanelItemSort[i] = StorageData.m_playerData.CarePanelItemSort[i];
         }
-        playerData["CarePanelItemSort"] = CarePanelItemSort;
+        m_playerData["CarePanelItemSort"] = CarePanelItemSort;
 
         Dictionary<int, int> StoragePanelItemSort = new Dictionary<int, int>();
         for (int i = 0; i < StorageData.m_playerData.StoragePanelItemSort.Length; i++)
         {
             StoragePanelItemSort[i] = StorageData.m_playerData.StoragePanelItemSort[i];
         }
-        playerData["StoragePanelItemSort"] = StoragePanelItemSort;
+        m_playerData["StoragePanelItemSort"] = StoragePanelItemSort;
 
         // Update003
-        playerData["m_IsRetryNewGame"] = StorageData.m_playerData.m_IsRetryNewGame;
+        m_playerData["m_IsRetryNewGame"] = StorageData.m_playerData.m_IsRetryNewGame;
 
         // Complete
-        playerData["Difficulty"] = (int)StorageData.m_playerData.Difficulty;
-        playerData["m_dayExECount"] = StorageData.m_playerData.m_dayExECount;
-        playerData["m_StealthTime"] = StorageData.m_playerData.m_StealthTime;
+        m_playerData["Difficulty"] = (int)StorageData.m_playerData.Difficulty;
+        m_playerData["m_dayExECount"] = StorageData.m_playerData.m_dayExECount;
+        m_playerData["m_StealthTime"] = StorageData.m_playerData.m_StealthTime;
 
-        buffer["playerData"] = playerData;
+        game_buffer["m_playerData"] = m_playerData;
     }
 
-    private static bool LoadPartnerData(int partner_no, JsonNode data)
+    private static bool LoadPartnerData(JsonNode data)
     {
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_name = (string)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_name"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_baseID = (uint)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_baseID"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_weight = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_weight"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hpMax = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_hpMax"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hp = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_hp"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mpMax = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_mpMax"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mp = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_mp"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_forcefulness = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_forcefulness"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_robustness = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_robustness"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_cleverness = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_cleverness"];
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_rapidity = (int)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_rapidity"];
-
-        ParameterDigimonData param = ParameterDigimonData.GetParam(StorageData.m_playerData.m_partners[partner_no].m_commonData.m_baseID);
-        if (param != null)
-            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_personality = param.m_personality;
-
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack.Length; i++)
+        for (int partner_no = 0; partner_no < 2; partner_no++)
         {
-            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack[i] = (uint)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_attack"][i.ToString()];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_name = (string)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_name"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_baseID = (uint)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_baseID"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_weight = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_weight"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hpMax = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_hpMax"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hp = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_hp"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mpMax = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_mpMax"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mp = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_mp"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_forcefulness = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_forcefulness"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_robustness = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_robustness"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_cleverness = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_cleverness"];
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_rapidity = (int)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_rapidity"];
+
+            ParameterDigimonData param = ParameterDigimonData.GetParam(StorageData.m_playerData.m_partners[partner_no].m_commonData.m_baseID);
+            if (param != null)
+                StorageData.m_playerData.m_partners[partner_no].m_commonData.m_personality = param.m_personality;
+
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack.Length; i++)
+            {
+                StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack[i] = (uint)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_attack"][i.ToString()];
+            }
+
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas.Length; i++)
+            {
+                StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_kind_index = (int)data["m_partners"][partner_no.ToString()]["m_educationDatas"][i.ToString()]["m_kind_index"];
+                StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_count = (int)data["m_partners"][partner_no.ToString()]["m_educationDatas"][i.ToString()]["m_count"];
+            }
+
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas.Length; i++)
+            {
+                StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_mapNo = (int)data["m_partners"][partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_mapNo"];
+                StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_areaNo = (int)data["m_partners"][partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_areaNo"];
+                float x = (float)data["m_partners"][partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_position.x"];
+                float y = (float)data["m_partners"][partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_position.y"];
+                float z = (float)data["m_partners"][partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_position.z"];
+                StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position = new Vector3(x, y, z);
+            }
+
+            // Lifecycle
+            StorageData.m_playerData.m_partners[partner_no].m_bonds = (int)data["m_partners"][partner_no.ToString()]["m_bonds"];
+            StorageData.m_playerData.m_partners[partner_no].m_age = (int)data["m_partners"][partner_no.ToString()]["m_age"];
+            StorageData.m_playerData.m_partners[partner_no].m_time_from_age = (float)data["m_partners"][partner_no.ToString()]["m_time_from_age"];
+            StorageData.m_playerData.m_partners[partner_no].m_time_from_birth = (float)data["m_partners"][partner_no.ToString()]["m_time_from_birth"];
+            StorageData.m_playerData.m_partners[partner_no].m_curse = (int)data["m_partners"][partner_no.ToString()]["m_curse"];
+            StorageData.m_playerData.m_partners[partner_no].m_lifetime = (float)data["m_partners"][partner_no.ToString()]["m_lifetime"];
+            StorageData.m_playerData.m_partners[partner_no].m_breeding = (int)data["m_partners"][partner_no.ToString()]["m_breeding"];
+            StorageData.m_playerData.m_partners[partner_no].m_mood = (int)data["m_partners"][partner_no.ToString()]["m_mood"];
+            StorageData.m_playerData.m_partners[partner_no].m_satiety = (int)data["m_partners"][partner_no.ToString()]["m_satiety"];
+            StorageData.m_playerData.m_partners[partner_no].m_fatigue = (int)data["m_partners"][partner_no.ToString()]["m_fatigue"];
+            StorageData.m_playerData.m_partners[partner_no].m_FieldStatusEffect = (int)data["m_partners"][partner_no.ToString()]["m_FieldStatusEffect"];
+            StorageData.m_playerData.m_partners[partner_no].m_trainingFailure = (int)data["m_partners"][partner_no.ToString()]["m_trainingFailure"];
+            StorageData.m_playerData.m_partners[partner_no].m_battleWin = (int)data["m_partners"][partner_no.ToString()]["m_battleWin"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealTime = (float)data["m_partners"][partner_no.ToString()]["m_mealTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_toiletTime = (float)data["m_partners"][partner_no.ToString()]["m_toiletTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_sleepTime = (float)data["m_partners"][partner_no.ToString()]["m_sleepTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_isReqMeal = (bool)data["m_partners"][partner_no.ToString()]["m_isReqMeal"];
+            StorageData.m_playerData.m_partners[partner_no].m_isReqToilet = (bool)data["m_partners"][partner_no.ToString()]["m_isReqToilet"];
+            StorageData.m_playerData.m_partners[partner_no].m_isReqSleep = (bool)data["m_partners"][partner_no.ToString()]["m_isReqSleep"];
+            StorageData.m_playerData.m_partners[partner_no].m_lastBaitTime = (float)data["m_partners"][partner_no.ToString()]["m_lastBaitTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_subSatietyTime = (float)data["m_partners"][partner_no.ToString()]["m_subSatietyTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_subSatietyCt = (int)data["m_partners"][partner_no.ToString()]["m_subSatietyCt"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealTimeZone = (PlayerData.PartnerData.MealTimeZone)(int)data["m_partners"][partner_no.ToString()]["m_mealTimeZone"];
+            StorageData.m_playerData.m_partners[partner_no].m_putToSleepTime = (float)data["m_partners"][partner_no.ToString()]["m_putToSleepTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_wakeUpTime = (float)data["m_partners"][partner_no.ToString()]["m_wakeUpTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_GenerationNum = (uint)data["m_partners"][partner_no.ToString()]["m_GenerationNum"];
+            StorageData.m_playerData.m_partners[partner_no].m_favoriteAddingId = (uint)data["m_partners"][partner_no.ToString()]["m_favoriteAddingId"];
+            StorageData.m_playerData.m_partners[partner_no].m_TerrainImpactTimer = (float)data["m_partners"][partner_no.ToString()]["m_TerrainImpactTimer"];
+
+            // Diathesis
+            StorageData.m_playerData.m_partners[partner_no].m_diathesisHp = (int)data["m_partners"][partner_no.ToString()]["m_diathesisHp"];
+            StorageData.m_playerData.m_partners[partner_no].m_diathesisMp = (int)data["m_partners"][partner_no.ToString()]["m_diathesisMp"];
+            StorageData.m_playerData.m_partners[partner_no].m_diathesisForcefulness = (int)data["m_partners"][partner_no.ToString()]["m_diathesisForcefulness"];
+            StorageData.m_playerData.m_partners[partner_no].m_diathesisRobustness = (int)data["m_partners"][partner_no.ToString()]["m_diathesisRobustness"];
+            StorageData.m_playerData.m_partners[partner_no].m_diathesisCleverness = (int)data["m_partners"][partner_no.ToString()]["m_diathesisCleverness"];
+            StorageData.m_playerData.m_partners[partner_no].m_diathesisRapidity = (int)data["m_partners"][partner_no.ToString()]["m_diathesisRapidity"];
+
+            // Chip
+            StorageData.m_playerData.m_partners[partner_no].m_chipHpMax = (int)data["m_partners"][partner_no.ToString()]["m_chipHpMax"];
+            StorageData.m_playerData.m_partners[partner_no].m_chipMpMax = (int)data["m_partners"][partner_no.ToString()]["m_chipMpMax"];
+            StorageData.m_playerData.m_partners[partner_no].m_chipForcefulness = (int)data["m_partners"][partner_no.ToString()]["m_chipForcefulness"];
+            StorageData.m_playerData.m_partners[partner_no].m_chipRobustness = (int)data["m_partners"][partner_no.ToString()]["m_chipRobustness"];
+            StorageData.m_playerData.m_partners[partner_no].m_chipCleverness = (int)data["m_partners"][partner_no.ToString()]["m_chipCleverness"];
+            StorageData.m_playerData.m_partners[partner_no].m_chipRapidity = (int)data["m_partners"][partner_no.ToString()]["m_chipRapidity"];
+
+            // EvolutionBefore
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeBaseId = (uint)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeBaseId"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeHp = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeHp"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeMp = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeMp"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeForcefulness = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeForcefulness"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRobustness = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeRobustness"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeCleverness = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeCleverness"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRapidity = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforeRapidity"];
+            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforemWeight = (int)data["m_partners"][partner_no.ToString()]["m_EvolutionBeforemWeight"];
+
+            // MealCorrection
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHp = (int)data["m_partners"][partner_no.ToString()]["m_mealCorrectionHp"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMp = (int)data["m_partners"][partner_no.ToString()]["m_mealCorrectionMp"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulness = (int)data["m_partners"][partner_no.ToString()]["m_mealCorrectionForcefulness"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustness = (int)data["m_partners"][partner_no.ToString()]["m_mealCorrectionRobustness"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionVleverness = (int)data["m_partners"][partner_no.ToString()]["m_mealCorrectionVleverness"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidity = (int)data["m_partners"][partner_no.ToString()]["m_mealCorrectionRapidity"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHpEffectTime = (float)data["m_partners"][partner_no.ToString()]["m_mealCorrectionHpEffectTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMpEffectTime = (float)data["m_partners"][partner_no.ToString()]["m_mealCorrectionMpEffectTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulnessEffectTime = (float)data["m_partners"][partner_no.ToString()]["m_mealCorrectionForcefulnessEffectTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustnessEffectTime = (float)data["m_partners"][partner_no.ToString()]["m_mealCorrectionRobustnessEffectTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionClevernessEffectTime = (float)data["m_partners"][partner_no.ToString()]["m_mealCorrectionClevernessEffectTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidityEffectTime = (float)data["m_partners"][partner_no.ToString()]["m_mealCorrectionRapidityEffectTime"];
+
+            // Battle
+            StorageData.m_playerData.m_partners[partner_no].m_BattleRange = (PlayerData.PartnerData.BattleRangeType)(int)data["m_partners"][partner_no.ToString()]["m_BattleRange"];
+            StorageData.m_playerData.m_partners[partner_no].m_BattlePolicy = (PlayerData.PartnerData.BattlePolicyType)(int)data["m_partners"][partner_no.ToString()]["m_BattlePolicy"];
+            StorageData.m_playerData.m_partners[partner_no].m_BattleUseMpPolicy = (PlayerData.PartnerData.BattleUseMpType)(int)data["m_partners"][partner_no.ToString()]["m_BattleUseMpPolicy"];
+
+            // Genealogy
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_HistoryArray.Length; i++)
+            {
+                int year = (int)data["m_partners"][partner_no.ToString()]["m_HistoryArray"][i.ToString()]["m_Year"];
+                int day = (int)data["m_partners"][partner_no.ToString()]["m_HistoryArray"][i.ToString()]["m_Day"];
+                uint id = (uint)data["m_partners"][partner_no.ToString()]["m_HistoryArray"][i.ToString()]["m_DigimonID"];
+                StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i] = new PlayerData.PartnerData.HistoryData(year, day, id);
+            }
+
+            for (uint i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock.m_NumFlags; i++)
+            {
+                StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock[i] = (bool)data["m_partners"][partner_no.ToString()]["m_EvolutionBlock"][i.ToString()];
+            }
+
+            // Update001
+            StorageData.m_playerData.m_partners[partner_no].m_prevLifeCycleUpdateTime = (float)data["m_partners"][partner_no.ToString()]["m_prevLifeCycleUpdateTime"];
+            StorageData.m_playerData.m_partners[partner_no].m_LifeCycleMessageFlag = (int)data["m_partners"][partner_no.ToString()]["m_LifeCycleMessageFlag"];
+
+            // Complete
+            StorageData.m_playerData.m_partners[partner_no].m_commonData.m_IsDefaultName = (bool)data["m_partners"][partner_no.ToString()]["m_commonData"]["m_IsDefaultName"];
         }
-
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas.Length; i++)
-        {
-            StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_kind_index = (int)data["partnerData" + partner_no.ToString()]["m_educationDatas"][i.ToString()]["m_kind_index"];
-            StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_count = (int)data["partnerData" + partner_no.ToString()]["m_educationDatas"][i.ToString()]["m_count"];
-        }
-
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas.Length; i++)
-        {
-            StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_mapNo = (int)data["partnerData" + partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_mapNo"];
-            StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_areaNo = (int)data["partnerData" + partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_areaNo"];
-            float x = (float)data["partnerData" + partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_position.x"];
-            float y = (float)data["partnerData" + partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_position.y"];
-            float z = (float)data["partnerData" + partner_no.ToString()]["m_nokusoData"][i.ToString()]["m_position.z"];
-            StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position = new Vector3(x, y, z);
-        }
-
-        // Lifecycle
-        StorageData.m_playerData.m_partners[partner_no].m_bonds = (int)data["partnerData" + partner_no.ToString()]["m_bonds"];
-        StorageData.m_playerData.m_partners[partner_no].m_age = (int)data["partnerData" + partner_no.ToString()]["m_age"];
-        StorageData.m_playerData.m_partners[partner_no].m_time_from_age = (float)data["partnerData" + partner_no.ToString()]["m_time_from_age"];
-        StorageData.m_playerData.m_partners[partner_no].m_time_from_birth = (float)data["partnerData" + partner_no.ToString()]["m_time_from_birth"];
-        StorageData.m_playerData.m_partners[partner_no].m_curse = (int)data["partnerData" + partner_no.ToString()]["m_curse"];
-        StorageData.m_playerData.m_partners[partner_no].m_lifetime = (float)data["partnerData" + partner_no.ToString()]["m_lifetime"];
-        StorageData.m_playerData.m_partners[partner_no].m_breeding = (int)data["partnerData" + partner_no.ToString()]["m_breeding"];
-        StorageData.m_playerData.m_partners[partner_no].m_mood = (int)data["partnerData" + partner_no.ToString()]["m_mood"];
-        StorageData.m_playerData.m_partners[partner_no].m_satiety = (int)data["partnerData" + partner_no.ToString()]["m_satiety"];
-        StorageData.m_playerData.m_partners[partner_no].m_fatigue = (int)data["partnerData" + partner_no.ToString()]["m_fatigue"];
-        StorageData.m_playerData.m_partners[partner_no].m_FieldStatusEffect = (int)data["partnerData" + partner_no.ToString()]["m_FieldStatusEffect"];
-        StorageData.m_playerData.m_partners[partner_no].m_trainingFailure = (int)data["partnerData" + partner_no.ToString()]["m_trainingFailure"];
-        StorageData.m_playerData.m_partners[partner_no].m_battleWin = (int)data["partnerData" + partner_no.ToString()]["m_battleWin"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealTime = (float)data["partnerData" + partner_no.ToString()]["m_mealTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_toiletTime = (float)data["partnerData" + partner_no.ToString()]["m_toiletTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_sleepTime = (float)data["partnerData" + partner_no.ToString()]["m_sleepTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_isReqMeal = (bool)data["partnerData" + partner_no.ToString()]["m_isReqMeal"];
-        StorageData.m_playerData.m_partners[partner_no].m_isReqToilet = (bool)data["partnerData" + partner_no.ToString()]["m_isReqToilet"];
-        StorageData.m_playerData.m_partners[partner_no].m_isReqSleep = (bool)data["partnerData" + partner_no.ToString()]["m_isReqSleep"];
-        StorageData.m_playerData.m_partners[partner_no].m_lastBaitTime = (float)data["partnerData" + partner_no.ToString()]["m_lastBaitTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_subSatietyTime = (float)data["partnerData" + partner_no.ToString()]["m_subSatietyTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_subSatietyCt = (int)data["partnerData" + partner_no.ToString()]["m_subSatietyCt"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealTimeZone = (PlayerData.PartnerData.MealTimeZone)(int)data["partnerData" + partner_no.ToString()]["m_mealTimeZone"];
-        StorageData.m_playerData.m_partners[partner_no].m_putToSleepTime = (float)data["partnerData" + partner_no.ToString()]["m_putToSleepTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_wakeUpTime = (float)data["partnerData" + partner_no.ToString()]["m_wakeUpTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_GenerationNum = (uint)data["partnerData" + partner_no.ToString()]["m_GenerationNum"];
-        StorageData.m_playerData.m_partners[partner_no].m_favoriteAddingId = (uint)data["partnerData" + partner_no.ToString()]["m_favoriteAddingId"];
-        StorageData.m_playerData.m_partners[partner_no].m_TerrainImpactTimer = (float)data["partnerData" + partner_no.ToString()]["m_TerrainImpactTimer"];
-
-        // Diathesis
-        StorageData.m_playerData.m_partners[partner_no].m_diathesisHp = (int)data["partnerData" + partner_no.ToString()]["m_diathesisHp"];
-        StorageData.m_playerData.m_partners[partner_no].m_diathesisMp = (int)data["partnerData" + partner_no.ToString()]["m_diathesisMp"];
-        StorageData.m_playerData.m_partners[partner_no].m_diathesisForcefulness = (int)data["partnerData" + partner_no.ToString()]["m_diathesisForcefulness"];
-        StorageData.m_playerData.m_partners[partner_no].m_diathesisRobustness = (int)data["partnerData" + partner_no.ToString()]["m_diathesisRobustness"];
-        StorageData.m_playerData.m_partners[partner_no].m_diathesisCleverness = (int)data["partnerData" + partner_no.ToString()]["m_diathesisCleverness"];
-        StorageData.m_playerData.m_partners[partner_no].m_diathesisRapidity = (int)data["partnerData" + partner_no.ToString()]["m_diathesisRapidity"];
-
-        // Chip
-        StorageData.m_playerData.m_partners[partner_no].m_chipHpMax = (int)data["partnerData" + partner_no.ToString()]["m_chipHpMax"];
-        StorageData.m_playerData.m_partners[partner_no].m_chipMpMax = (int)data["partnerData" + partner_no.ToString()]["m_chipMpMax"];
-        StorageData.m_playerData.m_partners[partner_no].m_chipForcefulness = (int)data["partnerData" + partner_no.ToString()]["m_chipForcefulness"];
-        StorageData.m_playerData.m_partners[partner_no].m_chipRobustness = (int)data["partnerData" + partner_no.ToString()]["m_chipRobustness"];
-        StorageData.m_playerData.m_partners[partner_no].m_chipCleverness = (int)data["partnerData" + partner_no.ToString()]["m_chipCleverness"];
-        StorageData.m_playerData.m_partners[partner_no].m_chipRapidity = (int)data["partnerData" + partner_no.ToString()]["m_chipRapidity"];
-
-        // EvolutionBefore
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeBaseId = (uint)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeBaseId"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeHp = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeHp"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeMp = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeMp"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeForcefulness = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeForcefulness"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRobustness = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeRobustness"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeCleverness = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeCleverness"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRapidity = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforeRapidity"];
-        StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforemWeight = (int)data["partnerData" + partner_no.ToString()]["m_EvolutionBeforemWeight"];
-
-        // MealCorrection
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHp = (int)data["partnerData" + partner_no.ToString()]["m_mealCorrectionHp"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMp = (int)data["partnerData" + partner_no.ToString()]["m_mealCorrectionMp"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulness = (int)data["partnerData" + partner_no.ToString()]["m_mealCorrectionForcefulness"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustness = (int)data["partnerData" + partner_no.ToString()]["m_mealCorrectionRobustness"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionVleverness = (int)data["partnerData" + partner_no.ToString()]["m_mealCorrectionVleverness"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidity = (int)data["partnerData" + partner_no.ToString()]["m_mealCorrectionRapidity"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHpEffectTime = (float)data["partnerData" + partner_no.ToString()]["m_mealCorrectionHpEffectTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMpEffectTime = (float)data["partnerData" + partner_no.ToString()]["m_mealCorrectionMpEffectTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulnessEffectTime = (float)data["partnerData" + partner_no.ToString()]["m_mealCorrectionForcefulnessEffectTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustnessEffectTime = (float)data["partnerData" + partner_no.ToString()]["m_mealCorrectionRobustnessEffectTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionClevernessEffectTime = (float)data["partnerData" + partner_no.ToString()]["m_mealCorrectionClevernessEffectTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidityEffectTime = (float)data["partnerData" + partner_no.ToString()]["m_mealCorrectionRapidityEffectTime"];
-
-        // Battle
-        StorageData.m_playerData.m_partners[partner_no].m_BattleRange = (PlayerData.PartnerData.BattleRangeType)(int)data["partnerData" + partner_no.ToString()]["m_BattleRange"];
-        StorageData.m_playerData.m_partners[partner_no].m_BattlePolicy = (PlayerData.PartnerData.BattlePolicyType)(int)data["partnerData" + partner_no.ToString()]["m_BattlePolicy"];
-        StorageData.m_playerData.m_partners[partner_no].m_BattleUseMpPolicy = (PlayerData.PartnerData.BattleUseMpType)(int)data["partnerData" + partner_no.ToString()]["m_BattleUseMpPolicy"];
-
-        // Genealogy
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_HistoryArray.Length; i++)
-        {
-            int year = (int)data["partnerData" + partner_no.ToString()]["m_HistoryArray"][i.ToString()]["m_Year"];
-            int day = (int)data["partnerData" + partner_no.ToString()]["m_HistoryArray"][i.ToString()]["m_Day"];
-            uint id = (uint)data["partnerData" + partner_no.ToString()]["m_HistoryArray"][i.ToString()]["m_DigimonID"];
-            StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i] = new PlayerData.PartnerData.HistoryData(year, day, id);
-        }
-
-        for (uint i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock.m_NumFlags; i++)
-        {
-            StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock[i] = (bool)data["partnerData" + partner_no.ToString()]["m_EvolutionBlock"][i.ToString()];
-        }
-
-        // Update001
-        StorageData.m_playerData.m_partners[partner_no].m_prevLifeCycleUpdateTime = (float)data["partnerData" + partner_no.ToString()]["m_prevLifeCycleUpdateTime"];
-        StorageData.m_playerData.m_partners[partner_no].m_LifeCycleMessageFlag = (int)data["partnerData" + partner_no.ToString()]["m_LifeCycleMessageFlag"];
-
-        // Complete
-        StorageData.m_playerData.m_partners[partner_no].m_commonData.m_IsDefaultName = (bool)data["partnerData" + partner_no.ToString()]["m_commonData"]["m_IsDefaultName"];
 
         return true;
     }
 
-    private static void SavePartnerData(int partner_no, Dictionary<string, object> buffer)
+    private static void SavePartnerData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> partnerData = new Dictionary<string, object>();
+        Dictionary<string, object> m_partners = new Dictionary<string, object>();
 
-        Dictionary<string, object> m_commonData = new Dictionary<string, object>();
-        m_commonData["m_name"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_name;
-        m_commonData["m_baseID"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_baseID;
-        m_commonData["m_weight"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_weight;
-        m_commonData["m_hpMax"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hpMax;
-        m_commonData["m_hp"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hp;
-        m_commonData["m_mpMax"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mpMax;
-        m_commonData["m_mp"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mp;
-        m_commonData["m_forcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_forcefulness;
-        m_commonData["m_robustness"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_robustness;
-        m_commonData["m_cleverness"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_cleverness;
-        m_commonData["m_rapidity"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_rapidity;
-
-        Dictionary<int, uint> m_attack = new Dictionary<int, uint>();
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack.Length; i++)
+        for (int partner_no = 0; partner_no < 2; partner_no++)
         {
-            m_attack[i] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack[i];
-        }
-        m_commonData["m_attack"] = m_attack;
+            Dictionary<string, object> partner = new Dictionary<string, object>();
 
-        Dictionary<int, object> m_educationDatas = new Dictionary<int, object>();
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas.Length; i++)
+            Dictionary<string, object> m_commonData = new Dictionary<string, object>();
+            m_commonData["m_name"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_name;
+            m_commonData["m_baseID"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_baseID;
+            m_commonData["m_weight"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_weight;
+            m_commonData["m_hpMax"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hpMax;
+            m_commonData["m_hp"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_hp;
+            m_commonData["m_mpMax"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mpMax;
+            m_commonData["m_mp"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_mp;
+            m_commonData["m_forcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_forcefulness;
+            m_commonData["m_robustness"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_robustness;
+            m_commonData["m_cleverness"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_cleverness;
+            m_commonData["m_rapidity"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_rapidity;
+
+            Dictionary<int, uint> m_attack = new Dictionary<int, uint>();
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack.Length; i++)
+            {
+                m_attack[i] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_attack[i];
+            }
+            m_commonData["m_attack"] = m_attack;
+
+            Dictionary<int, object> m_educationDatas = new Dictionary<int, object>();
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas.Length; i++)
+            {
+                Dictionary<string, object> educationData = new Dictionary<string, object>();
+                educationData["m_kind_index"] = StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_kind_index;
+                educationData["m_count"] = StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_count;
+                m_educationDatas[i] = educationData;
+            }
+            partner["m_educationDatas"] = m_educationDatas;
+
+            Dictionary<int, object> m_nokusoData = new Dictionary<int, object>();
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas.Length; i++)
+            {
+                Dictionary<string, object> nokusoData = new Dictionary<string, object>();
+                nokusoData["m_mapNo"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_mapNo;
+                nokusoData["m_areaNo"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_areaNo;
+                nokusoData["m_position.x"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position.x;
+                nokusoData["m_position.y"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position.y;
+                nokusoData["m_position.z"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position.z;
+                m_nokusoData[i] = nokusoData;
+            }
+            partner["m_nokusoData"] = m_nokusoData;
+
+            // Lifecycle
+            partner["m_bonds"] = StorageData.m_playerData.m_partners[partner_no].m_bonds;
+            partner["m_age"] = StorageData.m_playerData.m_partners[partner_no].m_age;
+            partner["m_time_from_age"] = StorageData.m_playerData.m_partners[partner_no].m_time_from_age;
+            partner["m_time_from_birth"] = StorageData.m_playerData.m_partners[partner_no].m_time_from_birth;
+            partner["m_curse"] = StorageData.m_playerData.m_partners[partner_no].m_curse;
+            partner["m_lifetime"] = StorageData.m_playerData.m_partners[partner_no].m_lifetime;
+            partner["m_breeding"] = StorageData.m_playerData.m_partners[partner_no].m_breeding;
+            partner["m_mood"] = StorageData.m_playerData.m_partners[partner_no].m_mood;
+            partner["m_satiety"] = StorageData.m_playerData.m_partners[partner_no].m_satiety;
+            partner["m_fatigue"] = StorageData.m_playerData.m_partners[partner_no].m_fatigue;
+            partner["m_FieldStatusEffect"] = StorageData.m_playerData.m_partners[partner_no].m_FieldStatusEffect;
+            partner["m_trainingFailure"] = StorageData.m_playerData.m_partners[partner_no].m_trainingFailure;
+            partner["m_battleWin"] = StorageData.m_playerData.m_partners[partner_no].m_battleWin;
+            partner["m_mealTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealTime;
+            partner["m_toiletTime"] = StorageData.m_playerData.m_partners[partner_no].m_toiletTime;
+            partner["m_sleepTime"] = StorageData.m_playerData.m_partners[partner_no].m_sleepTime;
+            partner["m_isReqMeal"] = StorageData.m_playerData.m_partners[partner_no].m_isReqMeal;
+            partner["m_isReqToilet"] = StorageData.m_playerData.m_partners[partner_no].m_isReqToilet;
+            partner["m_isReqSleep"] = StorageData.m_playerData.m_partners[partner_no].m_isReqSleep;
+            partner["m_lastBaitTime"] = StorageData.m_playerData.m_partners[partner_no].m_lastBaitTime;
+            partner["m_subSatietyTime"] = StorageData.m_playerData.m_partners[partner_no].m_subSatietyTime;
+            partner["m_subSatietyCt"] = StorageData.m_playerData.m_partners[partner_no].m_subSatietyCt;
+            partner["m_mealTimeZone"] = (int)StorageData.m_playerData.m_partners[partner_no].m_mealTimeZone;
+            partner["m_putToSleepTime"] = StorageData.m_playerData.m_partners[partner_no].m_putToSleepTime;
+            partner["m_wakeUpTime"] = StorageData.m_playerData.m_partners[partner_no].m_wakeUpTime;
+            partner["m_GenerationNum"] = StorageData.m_playerData.m_partners[partner_no].m_GenerationNum;
+            partner["m_favoriteAddingId"] = StorageData.m_playerData.m_partners[partner_no].m_favoriteAddingId;
+            partner["m_TerrainImpactTimer"] = StorageData.m_playerData.m_partners[partner_no].m_TerrainImpactTimer;
+
+            // Diathesis
+            partner["m_diathesisHp"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisHp;
+            partner["m_diathesisMp"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisMp;
+            partner["m_diathesisForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisForcefulness;
+            partner["m_diathesisRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisRobustness;
+            partner["m_diathesisCleverness"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisCleverness;
+            partner["m_diathesisRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisRapidity;
+
+            // Chip
+            partner["m_chipHpMax"] = StorageData.m_playerData.m_partners[partner_no].m_chipHpMax;
+            partner["m_chipMpMax"] = StorageData.m_playerData.m_partners[partner_no].m_chipMpMax;
+            partner["m_chipForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_chipForcefulness;
+            partner["m_chipRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_chipRobustness;
+            partner["m_chipCleverness"] = StorageData.m_playerData.m_partners[partner_no].m_chipCleverness;
+            partner["m_chipRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_chipRapidity;
+
+            // EvolutionBefore
+            partner["m_EvolutionBeforeBaseId"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeBaseId;
+            partner["m_EvolutionBeforeHp"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeHp;
+            partner["m_EvolutionBeforeMp"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeMp;
+            partner["m_EvolutionBeforeForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeForcefulness;
+            partner["m_EvolutionBeforeRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRobustness;
+            partner["m_EvolutionBeforeCleverness"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeCleverness;
+            partner["m_EvolutionBeforeRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRapidity;
+            partner["m_EvolutionBeforemWeight"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforemWeight;
+
+            // MealCorrection
+            partner["m_mealCorrectionHp"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHp;
+            partner["m_mealCorrectionMp"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMp;
+            partner["m_mealCorrectionForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulness;
+            partner["m_mealCorrectionRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustness;
+            partner["m_mealCorrectionVleverness"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionVleverness;
+            partner["m_mealCorrectionRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidity;
+            partner["m_mealCorrectionHpEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHpEffectTime;
+            partner["m_mealCorrectionMpEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMpEffectTime;
+            partner["m_mealCorrectionForcefulnessEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulnessEffectTime;
+            partner["m_mealCorrectionRobustnessEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustnessEffectTime;
+            partner["m_mealCorrectionClevernessEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionClevernessEffectTime;
+            partner["m_mealCorrectionRapidityEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidityEffectTime;
+
+            // Battle
+            partner["m_BattleRange"] = (int)StorageData.m_playerData.m_partners[partner_no].m_BattleRange;
+            partner["m_BattlePolicy"] = (int)StorageData.m_playerData.m_partners[partner_no].m_BattlePolicy;
+            partner["m_BattleUseMpPolicy"] = (int)StorageData.m_playerData.m_partners[partner_no].m_BattleUseMpPolicy;
+
+            // Genealogy
+            Dictionary<int, object> m_HistoryArray = new Dictionary<int, object>();
+            for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_HistoryArray.Length; i++)
+            {
+                Dictionary<string, object> historyData = new Dictionary<string, object>();
+                historyData["m_Year"] = StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i].m_Year;
+                historyData["m_Day"] = StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i].m_Day;
+                historyData["m_DigimonID"] = StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i].m_DigimonID;
+                m_HistoryArray[i] = historyData;
+            }
+            partner["m_HistoryArray"] = m_HistoryArray;
+
+            Dictionary<uint, bool> m_EvolutionBlock = new Dictionary<uint, bool>();
+            for (uint i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock.m_NumFlags; i++)
+            {
+                m_EvolutionBlock[i] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock[i];
+            }
+            partner["m_EvolutionBlock"] = m_EvolutionBlock;
+
+            // Update001
+            partner["m_prevLifeCycleUpdateTime"] = StorageData.m_playerData.m_partners[partner_no].m_prevLifeCycleUpdateTime;
+            partner["m_LifeCycleMessageFlag"] = StorageData.m_playerData.m_partners[partner_no].m_LifeCycleMessageFlag;
+
+            // Complete
+            m_commonData["m_IsDefaultName"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_IsDefaultName;
+            partner["m_commonData"] = m_commonData;
+
+            m_partners[partner_no.ToString()] = partner;
+        }
+
+        game_buffer["m_partners"] = m_partners;
+    }
+
+    private static bool LoadWorldData(JsonNode data)
+    {
+        StorageData.m_worldData.m_time = (float)data["m_worldData"]["m_time"];
+        StorageData.m_worldData.m_weak = (int)data["m_worldData"]["m_weak"];
+        StorageData.m_worldData.m_season = (int)data["m_worldData"]["m_season"];
+        StorageData.m_worldData.m_year = (int)data["m_worldData"]["m_year"];
+        StorageData.m_worldData.m_daySpent = (int)data["m_worldData"]["m_daySpent"];
+        StorageData.m_worldData.m_totalDay = (uint)data["m_worldData"]["m_totalDay"];
+
+        return true;
+    }
+
+    private static void SaveWorldData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> m_worldData = new Dictionary<string, object>();
+
+        m_worldData["m_time"] = StorageData.m_worldData.m_time;
+        m_worldData["m_weak"] = StorageData.m_worldData.m_weak;
+        m_worldData["m_season"] = StorageData.m_worldData.m_season;
+        m_worldData["m_year"] = StorageData.m_worldData.m_year;
+        m_worldData["m_daySpent"] = StorageData.m_worldData.m_daySpent;
+        m_worldData["m_totalDay"] = StorageData.m_worldData.m_totalDay;
+
+        game_buffer["m_worldData"] = m_worldData;
+    }
+
+    private static bool LoadMapData(JsonNode data)
+    {
+        StorageData.m_mapData.m_mapNo = (int)data["m_mapData"]["m_mapNo"];
+        StorageData.m_mapData.m_areaNo = (int)data["m_mapData"]["m_areaNo"];
+        StorageData.m_mapData.m_mapEnterTime = (float)data["m_mapData"]["m_mapEnterTime"];
+
+        for (int i = 0; (long)i < 64L; i++)
         {
-            Dictionary<string, object> educationData = new Dictionary<string, object>();
-            educationData["m_kind_index"] = StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_kind_index;
-            educationData["m_count"] = StorageData.m_playerData.m_partners[partner_no].m_educationDatas.m_educationDatas[i].m_count;
-            m_educationDatas[i] = educationData;
+            StorageData.m_mapData.m_spawnPointBuffer[i] = (byte)data["m_mapData"]["m_spawnPointBuffer"][i.ToString()];
         }
-        partnerData["m_educationDatas"] = m_educationDatas;
+        StorageData.m_mapData.m_spawnPoint = Encoding.UTF8.GetString(StorageData.m_mapData.m_spawnPointBuffer);
 
-        Dictionary<int, object> m_nokusoData = new Dictionary<int, object>();
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas.Length; i++)
+        StorageData.m_mapData.m_player.m_pos_x = (float)data["m_mapData"]["m_player"]["m_pos_x"];
+        StorageData.m_mapData.m_player.m_pos_y = (float)data["m_mapData"]["m_player"]["m_pos_y"];
+        StorageData.m_mapData.m_player.m_pos_z = (float)data["m_mapData"]["m_player"]["m_pos_z"];
+        StorageData.m_mapData.m_player.m_eulerAngleY = (float)data["m_mapData"]["m_player"]["m_eulerAngleY"];
+
+        for (int i = 0; i < 2; i++)
         {
-            Dictionary<string, object> nokusoData = new Dictionary<string, object>();
-            nokusoData["m_mapNo"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_mapNo;
-            nokusoData["m_areaNo"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_areaNo;
-            nokusoData["m_position.x"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position.x;
-            nokusoData["m_position.y"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position.y;
-            nokusoData["m_position.z"] = StorageData.m_playerData.m_partners[partner_no].m_nokusoData.m_nokusoDatas[i].m_position.z;
-            m_nokusoData[i] = nokusoData;
+            StorageData.m_mapData.m_pertners[i].m_pos_x = (float)data["m_mapData"]["m_pertners"][i.ToString()]["m_pos_x"];
+            StorageData.m_mapData.m_pertners[i].m_pos_y = (float)data["m_mapData"]["m_pertners"][i.ToString()]["m_pos_y"];
+            StorageData.m_mapData.m_pertners[i].m_pos_z = (float)data["m_mapData"]["m_pertners"][i.ToString()]["m_pos_z"];
         }
-        partnerData["m_nokusoData"] = m_nokusoData;
 
-        // Lifecycle
-        partnerData["m_bonds"] = StorageData.m_playerData.m_partners[partner_no].m_bonds;
-        partnerData["m_age"] = StorageData.m_playerData.m_partners[partner_no].m_age;
-        partnerData["m_time_from_age"] = StorageData.m_playerData.m_partners[partner_no].m_time_from_age;
-        partnerData["m_time_from_birth"] = StorageData.m_playerData.m_partners[partner_no].m_time_from_birth;
-        partnerData["m_curse"] = StorageData.m_playerData.m_partners[partner_no].m_curse;
-        partnerData["m_lifetime"] = StorageData.m_playerData.m_partners[partner_no].m_lifetime;
-        partnerData["m_breeding"] = StorageData.m_playerData.m_partners[partner_no].m_breeding;
-        partnerData["m_mood"] = StorageData.m_playerData.m_partners[partner_no].m_mood;
-        partnerData["m_satiety"] = StorageData.m_playerData.m_partners[partner_no].m_satiety;
-        partnerData["m_fatigue"] = StorageData.m_playerData.m_partners[partner_no].m_fatigue;
-        partnerData["m_FieldStatusEffect"] = StorageData.m_playerData.m_partners[partner_no].m_FieldStatusEffect;
-        partnerData["m_trainingFailure"] = StorageData.m_playerData.m_partners[partner_no].m_trainingFailure;
-        partnerData["m_battleWin"] = StorageData.m_playerData.m_partners[partner_no].m_battleWin;
-        partnerData["m_mealTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealTime;
-        partnerData["m_toiletTime"] = StorageData.m_playerData.m_partners[partner_no].m_toiletTime;
-        partnerData["m_sleepTime"] = StorageData.m_playerData.m_partners[partner_no].m_sleepTime;
-        partnerData["m_isReqMeal"] = StorageData.m_playerData.m_partners[partner_no].m_isReqMeal;
-        partnerData["m_isReqToilet"] = StorageData.m_playerData.m_partners[partner_no].m_isReqToilet;
-        partnerData["m_isReqSleep"] = StorageData.m_playerData.m_partners[partner_no].m_isReqSleep;
-        partnerData["m_lastBaitTime"] = StorageData.m_playerData.m_partners[partner_no].m_lastBaitTime;
-        partnerData["m_subSatietyTime"] = StorageData.m_playerData.m_partners[partner_no].m_subSatietyTime;
-        partnerData["m_subSatietyCt"] = StorageData.m_playerData.m_partners[partner_no].m_subSatietyCt;
-        partnerData["m_mealTimeZone"] = (int)StorageData.m_playerData.m_partners[partner_no].m_mealTimeZone;
-        partnerData["m_putToSleepTime"] = StorageData.m_playerData.m_partners[partner_no].m_putToSleepTime;
-        partnerData["m_wakeUpTime"] = StorageData.m_playerData.m_partners[partner_no].m_wakeUpTime;
-        partnerData["m_GenerationNum"] = StorageData.m_playerData.m_partners[partner_no].m_GenerationNum;
-        partnerData["m_favoriteAddingId"] = StorageData.m_playerData.m_partners[partner_no].m_favoriteAddingId;
-        partnerData["m_TerrainImpactTimer"] = StorageData.m_playerData.m_partners[partner_no].m_TerrainImpactTimer;
-
-        // Diathesis
-        partnerData["m_diathesisHp"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisHp;
-        partnerData["m_diathesisMp"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisMp;
-        partnerData["m_diathesisForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisForcefulness;
-        partnerData["m_diathesisRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisRobustness;
-        partnerData["m_diathesisCleverness"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisCleverness;
-        partnerData["m_diathesisRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_diathesisRapidity;
-
-        // Chip
-        partnerData["m_chipHpMax"] = StorageData.m_playerData.m_partners[partner_no].m_chipHpMax;
-        partnerData["m_chipMpMax"] = StorageData.m_playerData.m_partners[partner_no].m_chipMpMax;
-        partnerData["m_chipForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_chipForcefulness;
-        partnerData["m_chipRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_chipRobustness;
-        partnerData["m_chipCleverness"] = StorageData.m_playerData.m_partners[partner_no].m_chipCleverness;
-        partnerData["m_chipRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_chipRapidity;
-
-        // EvolutionBefore
-        partnerData["m_EvolutionBeforeBaseId"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeBaseId;
-        partnerData["m_EvolutionBeforeHp"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeHp;
-        partnerData["m_EvolutionBeforeMp"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeMp;
-        partnerData["m_EvolutionBeforeForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeForcefulness;
-        partnerData["m_EvolutionBeforeRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRobustness;
-        partnerData["m_EvolutionBeforeCleverness"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeCleverness;
-        partnerData["m_EvolutionBeforeRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforeRapidity;
-        partnerData["m_EvolutionBeforemWeight"] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBeforemWeight;
-
-        // MealCorrection
-        partnerData["m_mealCorrectionHp"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHp;
-        partnerData["m_mealCorrectionMp"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMp;
-        partnerData["m_mealCorrectionForcefulness"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulness;
-        partnerData["m_mealCorrectionRobustness"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustness;
-        partnerData["m_mealCorrectionVleverness"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionVleverness;
-        partnerData["m_mealCorrectionRapidity"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidity;
-        partnerData["m_mealCorrectionHpEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionHpEffectTime;
-        partnerData["m_mealCorrectionMpEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionMpEffectTime;
-        partnerData["m_mealCorrectionForcefulnessEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionForcefulnessEffectTime;
-        partnerData["m_mealCorrectionRobustnessEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRobustnessEffectTime;
-        partnerData["m_mealCorrectionClevernessEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionClevernessEffectTime;
-        partnerData["m_mealCorrectionRapidityEffectTime"] = StorageData.m_playerData.m_partners[partner_no].m_mealCorrectionRapidityEffectTime;
-
-        // Battle
-        partnerData["m_BattleRange"] = (int)StorageData.m_playerData.m_partners[partner_no].m_BattleRange;
-        partnerData["m_BattlePolicy"] = (int)StorageData.m_playerData.m_partners[partner_no].m_BattlePolicy;
-        partnerData["m_BattleUseMpPolicy"] = (int)StorageData.m_playerData.m_partners[partner_no].m_BattleUseMpPolicy;
-
-        // Genealogy
-        Dictionary<int, object> m_HistoryArray = new Dictionary<int, object>();
-        for (int i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_HistoryArray.Length; i++)
+        for (int i = 0; i < 20; i++)
         {
-            Dictionary<string, object> historyData = new Dictionary<string, object>();
-            historyData["m_Year"] = StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i].m_Year;
-            historyData["m_Day"] = StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i].m_Day;
-            historyData["m_DigimonID"] = StorageData.m_playerData.m_partners[partner_no].m_HistoryArray[i].m_DigimonID;
-            m_HistoryArray[i] = historyData;
+            StorageData.m_mapData.m_enemies[i].m_pos_x = (float)data["m_mapData"]["m_enemies"][i.ToString()]["m_pos_x"];
+            StorageData.m_mapData.m_enemies[i].m_pos_y = (float)data["m_mapData"]["m_enemies"][i.ToString()]["m_pos_y"];
+            StorageData.m_mapData.m_enemies[i].m_pos_z = (float)data["m_mapData"]["m_enemies"][i.ToString()]["m_pos_z"];
+            StorageData.m_mapData.m_enemies[i].m_hp = (int)data["m_mapData"]["m_enemies"][i.ToString()]["m_hp"];
+            StorageData.m_mapData.m_enemies[i].m_isCreate = (bool)data["m_mapData"]["m_enemies"][i.ToString()]["m_isCreate"];
         }
-        partnerData["m_HistoryArray"] = m_HistoryArray;
 
-        Dictionary<uint, bool> m_EvolutionBlock = new Dictionary<uint, bool>();
-        for (uint i = 0; i < StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock.m_NumFlags; i++)
+        //for (int i = 0; i < 16; i++)
+        //{
+        //    StorageData.m_mapData.m_npcs[i].m_pos_x = (float)data["m_mapData"]["m_npcs"][i.ToString()]["m_pos_x"];
+        //    StorageData.m_mapData.m_npcs[i].m_pos_y = (float)data["m_mapData"]["m_npcs"][i.ToString()]["m_pos_y"];
+        //    StorageData.m_mapData.m_npcs[i].m_pos_z = (float)data["m_mapData"]["m_npcs"][i.ToString()]["m_pos_z"];
+        //    StorageData.m_mapData.m_npcs[i].m_eulerAngleY = (float)data["m_mapData"]["m_npcs"][i.ToString()]["m_eulerAngleY"];
+        //}
+
+        StorageData.m_mapData.m_isUseSaveData = true;
+
+        return true;
+    }
+
+    private static void SaveMapData(Dictionary<string, object> game_buffer)
+    {
+        StorageData.m_mapData.ConvertSaveData();
+        Dictionary<string, object> m_mapData = new Dictionary<string, object>();
+
+        m_mapData["m_mapNo"] = StorageData.m_mapData.m_mapNo;
+        m_mapData["m_areaNo"] = StorageData.m_mapData.m_areaNo;
+        m_mapData["m_mapEnterTime"] = StorageData.m_mapData.m_mapEnterTime;
+
+        if (StorageData.m_mapData.m_spawnPoint == null)
         {
-            m_EvolutionBlock[i] = StorageData.m_playerData.m_partners[partner_no].m_EvolutionBlock[i];
+            StorageData.m_mapData.m_spawnPoint = string.Empty;
         }
-        partnerData["m_EvolutionBlock"] = m_EvolutionBlock;
+        byte[] bytes = Encoding.UTF8.GetBytes(StorageData.m_mapData.m_spawnPoint);
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            StorageData.m_mapData.m_spawnPointBuffer[i] = bytes[i];
+        }
+        Dictionary<int, object> m_spawnPointBuffer = new Dictionary<int, object>();
+        for (int j = 0; (long)j < 64L; j++)
+        {
+            m_spawnPointBuffer[j] = StorageData.m_mapData.m_spawnPointBuffer[j];
+        }
+        m_mapData["m_spawnPointBuffer"] = m_spawnPointBuffer;
 
-        // Update001
-        partnerData["m_prevLifeCycleUpdateTime"] = StorageData.m_playerData.m_partners[partner_no].m_prevLifeCycleUpdateTime;
-        partnerData["m_LifeCycleMessageFlag"] = StorageData.m_playerData.m_partners[partner_no].m_LifeCycleMessageFlag;
+        Dictionary<string, object> m_player = new Dictionary<string, object>();
 
-        // Complete
-        m_commonData["m_IsDefaultName"] = StorageData.m_playerData.m_partners[partner_no].m_commonData.m_IsDefaultName;
-        partnerData["m_commonData"] = m_commonData;
+        m_player["m_pos_x"] = StorageData.m_mapData.m_player.m_pos_x;
+        m_player["m_pos_y"] = StorageData.m_mapData.m_player.m_pos_y;
+        m_player["m_pos_z"] = StorageData.m_mapData.m_player.m_pos_z;
+        m_player["m_eulerAngleY"] = StorageData.m_mapData.m_player.m_eulerAngleY;
 
-        buffer["partnerData" + partner_no.ToString()] = partnerData;
+        m_mapData["m_player"] = m_player;
+
+        Dictionary<string, object> m_pertners = new Dictionary<string, object>();
+
+        for (int k = 0; k < StorageData.m_mapData.m_pertners.Length; k++)
+        {
+            Dictionary<string, object> partner = new Dictionary<string, object>();
+
+            partner["m_pos_x"] = StorageData.m_mapData.m_pertners[k].m_pos_x;
+            partner["m_pos_y"] = StorageData.m_mapData.m_pertners[k].m_pos_y;
+            partner["m_pos_z"] = StorageData.m_mapData.m_pertners[k].m_pos_z;
+
+            m_pertners[k.ToString()] = partner;
+        }
+
+        m_mapData["m_pertners"] = m_pertners;
+
+        Dictionary<string, object> m_enemies = new Dictionary<string, object>();
+
+        for (int l = 0; l < StorageData.m_mapData.m_enemies.Length; l++)
+        {
+            Dictionary<string, object> enemy = new Dictionary<string, object>();
+
+            enemy["m_pos_x"] = StorageData.m_mapData.m_enemies[l].m_pos_x;
+            enemy["m_pos_y"] = StorageData.m_mapData.m_enemies[l].m_pos_y;
+            enemy["m_pos_z"] = StorageData.m_mapData.m_enemies[l].m_pos_z;
+            enemy["m_hp"] = StorageData.m_mapData.m_enemies[l].m_hp;
+            enemy["m_isCreate"] = StorageData.m_mapData.m_enemies[l].m_isCreate;
+
+            m_enemies[l.ToString()] = enemy;
+        }
+
+        m_mapData["m_enemies"] = m_enemies;
+
+        // the m_npcs doesn't seems to be used, all value were the default one, even on map with many npc such as town.
+
+        //Dictionary<string, object> m_npcs = new Dictionary<string, object>();
+
+        //for (int m = 0; m < StorageData.m_mapData.m_npcs.Length; m++)
+        //{
+        //    Dictionary<string, object> npc = new Dictionary<string, object>();
+
+        //    npc["m_pos_x"] = StorageData.m_mapData.m_npcs[m].m_pos_x;
+        //    npc["m_pos_y"] = StorageData.m_mapData.m_npcs[m].m_pos_y;
+        //    npc["m_pos_z"] = StorageData.m_mapData.m_npcs[m].m_pos_z;
+        //    npc["m_eulerAngleY"] = StorageData.m_mapData.m_npcs[m].m_eulerAngleY;
+
+        //    m_npcs[m.ToString()] = npc;
+        //}
+
+        //m_mapData["m_npcs"] = m_npcs;
+
+        game_buffer["m_mapData"] = m_mapData;
+    }
+
+    private static bool LoadItemPickPointData(JsonNode data)
+    {
+        for (int i = 0; i < StorageData.m_itemPickPointData.m_itemPickPointDatas.Length; i++)
+        {
+            StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_id = (uint)data["m_itemPickPointData"]["m_itemPickPointDatas"][i.ToString()]["m_id"];
+            for (int j = 0; j < StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_itemDatas.Length; j++)
+            {
+                StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_itemDatas[j].m_id = (uint)data["m_itemPickPointData"]["m_itemPickPointDatas"][i.ToString()]["m_itemDatas"][j.ToString()]["m_id"];
+                StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_itemDatas[j].m_num = (int)data["m_itemPickPointData"]["m_itemPickPointDatas"][i.ToString()]["m_itemDatas"][j.ToString()]["m_num"];
+                StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_itemDatas[j].m_pos_x = (float)data["m_itemPickPointData"]["m_itemPickPointDatas"][i.ToString()]["m_itemDatas"][j.ToString()]["m_pos_x"];
+                StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_itemDatas[j].m_pos_y = (float)data["m_itemPickPointData"]["m_itemPickPointDatas"][i.ToString()]["m_itemDatas"][j.ToString()]["m_pos_y"];
+                StorageData.m_itemPickPointData.m_itemPickPointDatas[i].m_itemDatas[j].m_pos_z = (float)data["m_itemPickPointData"]["m_itemPickPointDatas"][i.ToString()]["m_itemDatas"][j.ToString()]["m_pos_z"];
+            }
+        }
+
+        for (int i = 0; i < StorageData.m_itemPickPointData.m_materialPickPointDatas.Length; i++)
+        {
+            StorageData.m_itemPickPointData.m_materialPickPointDatas[i].m_id = (uint)data["m_itemPickPointData"]["m_materialPickPointDatas"][i.ToString()]["m_id"];
+            StorageData.m_itemPickPointData.m_materialPickPointDatas[i].m_remainderPickCount = (int)data["m_itemPickPointData"]["m_materialPickPointDatas"][i.ToString()]["m_remainderPickCount"];
+            StorageData.m_itemPickPointData.m_materialPickPointDatas[i].m_isTodayUpdate = (bool)data["m_itemPickPointData"]["m_materialPickPointDatas"][i.ToString()]["m_isTodayUpdate"];
+        }
+
+        StorageData.m_itemPickPointData.m_isUseSaveData = true;
+
+        return true;
+    }
+
+    private static void SaveItemPickPointData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> m_itemPickPointData = new Dictionary<string, object>();
+
+        Dictionary<string, object> m_itemPickPointDatas = new Dictionary<string, object>();
+
+        for (int i = 0; i < StorageData.m_itemPickPointData.m_itemPickPointDatas.Length; i++)
+        {
+            Dictionary<string, object> m_itemDatas = new Dictionary<string, object>();
+
+            ItemPickPointData data = StorageData.m_itemPickPointData.m_itemPickPointDatas[i];
+            for (int j = 0; j < data.m_itemDatas.Length; j++)
+            {
+                Dictionary<string, object> Datas = new Dictionary<string, object>();
+                Datas["m_id"] = data.m_itemDatas[j].m_id;
+                Datas["m_num"] = data.m_itemDatas[j].m_num;
+                Datas["m_pos_x"] = data.m_itemDatas[j].m_pos_x;
+                Datas["m_pos_y"] = data.m_itemDatas[j].m_pos_y;
+                Datas["m_pos_z"] = data.m_itemDatas[j].m_pos_z;
+                m_itemDatas[j.ToString()] = Datas;
+            }
+
+            Dictionary<string, object> pickPointData = new Dictionary<string, object>();
+            pickPointData["m_id"] = data.m_id;
+            pickPointData["m_itemDatas"] = m_itemDatas;
+            m_itemPickPointDatas[i.ToString()] = pickPointData;
+        }
+
+        m_itemPickPointData["m_itemPickPointDatas"] = m_itemPickPointDatas;
+
+        Dictionary<string, object> m_materialPickPointDatas = new Dictionary<string, object>();
+
+        for (int i = 0; i < StorageData.m_itemPickPointData.m_materialPickPointDatas.Length; i++)
+        {
+            Dictionary<string, object> Datas = new Dictionary<string, object>();
+            MaterialPickPointData data = StorageData.m_itemPickPointData.m_materialPickPointDatas[i];
+            Datas["m_id"] = data.m_id;
+            Datas["m_remainderPickCount"] = data.m_remainderPickCount;
+            Datas["m_isTodayUpdate"] = data.m_isTodayUpdate;
+            m_materialPickPointDatas[i.ToString()] = Datas;
+        }
+
+        m_itemPickPointData["m_materialPickPointDatas"] = m_materialPickPointDatas;
+
+        game_buffer["m_itemPickPointData"] = m_itemPickPointData;
+    }
+
+    private static bool LoadScenarioProgressData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveScenarioProgressData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadScenaioFlagSetTimer(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveScenaioFlagSetTimer(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadItemStorageData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveItemStorageData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadFixedTimeData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveFixedTimeData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadGradeUpData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveGradeUpData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadMaterialData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveMaterialData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadColosseumData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveColosseumData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadFarmData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveFarmData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadTradeData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveTradeData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadTrainingData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveTrainingData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadTrainingMenuData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveTrainingMenuData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadDigitalMessangerData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveDigitalMessangerData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadDigiviceMapData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveDigiviceMapData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadAreaArrivalFlag(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveAreaArrivalFlag(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadDailyQuestData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveDailyQuestData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadIjigenBoxData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveIjigenBoxData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadDigimonCardFlag(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveDigimonCardFlag(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadBattleRecord(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveBattleRecord(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadQuestItemCounter(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SaveQuestItemCounter(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
+    }
+
+    private static bool LoadPlayTimeData(JsonNode data)
+    {
+        string example = (string)data["example"];
+        return true;
+    }
+
+    private static void SavePlayTimeData(Dictionary<string, object> game_buffer)
+    {
+        Dictionary<string, object> exampleData = new Dictionary<string, object>();
+        exampleData["example"] = "example";
+        game_buffer["exampleData"] = exampleData;
     }
 }

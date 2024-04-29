@@ -8,7 +8,7 @@ internal class NpcManagerPatch
     [HarmonyPostfix]
     private static void NpcManager_InstantiateNpc_Postfix(NpcManager __instance)
     {
-        System.Numerics.Vector2 key = new System.Numerics.Vector2(MainGameManager.m_instance.nextMapNo, MainGameManager.m_instance.nextAreaNo);
+        System.Numerics.Vector2 key = new System.Numerics.Vector2(MainGameManager.m_instance.mapNo, MainGameManager.m_instance.areaNo);
         if (ParameterManagerLib.CustomPlacementNPCDatas.ContainsKey(key))
         {
             foreach (ParameterPlacementNpc npc in ParameterManagerLib.CustomPlacementNPCDatas[key])
