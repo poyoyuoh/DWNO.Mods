@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnePartner", "Mods\OnePartn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkipTutorials", "Mods\SkipTutorials\SkipTutorials.csproj", "{FD650E79-A05C-46B9-8FB6-E32B8C9694D2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DescriptiveEnemies", "Mods\DescriptiveEnemies\DescriptiveEnemies.csproj", "{399C0B82-FFC3-4582-8C54-88085FAE0A86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{FD650E79-A05C-46B9-8FB6-E32B8C9694D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD650E79-A05C-46B9-8FB6-E32B8C9694D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD650E79-A05C-46B9-8FB6-E32B8C9694D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
