@@ -63,6 +63,7 @@ public class StorageDataLib
 
     private static Dictionary<string, object> game_buffer { get; set; } = new Dictionary<string, object>();
 
+    #region System
     public static bool IsExistSystemData()
     {
         string savepath = AppMainScript.m_instance.m_unitySaveDataPath + "SystemSaveData.json";
@@ -182,7 +183,9 @@ public class StorageDataLib
 
         system_buffer["m_OptionData"] = m_OptionData;
     }
+    #endregion
 
+    #region Game
     public static bool IsExistGameData(int slot_no)
     {
         string savepath = AppMainScript.m_instance.GetSaveFilePath(slot_no);
@@ -249,6 +252,7 @@ public class StorageDataLib
         SaveMapData(game_buffer);
         SaveItemPickPointData(game_buffer);
     }
+    #endregion
 
     /// <summary>
     /// This is just a code example to copy-paste.
@@ -302,6 +306,7 @@ public class StorageDataLib
         game_buffer["SaveFileInfo"] = SaveFileInfo;
     }
 
+    #region PlayerData
     private static bool LoadPlayerData(JsonNode data)
     {
         StorageData.m_playerData.m_Name = (string)data["m_playerData"]["m_Name"];
@@ -503,7 +508,9 @@ public class StorageDataLib
 
         game_buffer["m_playerData"] = m_playerData;
     }
+    #endregion
 
+    #region PartnerData
     private static bool LoadPartnerData(JsonNode data)
     {
         for (int partner_no = 0; partner_no < 2; partner_no++)
@@ -803,7 +810,9 @@ public class StorageDataLib
 
         game_buffer["m_partners"] = m_partners;
     }
+    #endregion
 
+    #region WorldData
     private static bool LoadWorldData(JsonNode data)
     {
         StorageData.m_worldData.m_time = (float)data["m_worldData"]["m_time"];
@@ -829,7 +838,9 @@ public class StorageDataLib
 
         game_buffer["m_worldData"] = m_worldData;
     }
+    #endregion
 
+    #region MapData
     private static bool LoadMapData(JsonNode data)
     {
         StorageData.m_mapData.m_mapNo = (int)data["m_mapData"]["m_mapNo"];
@@ -962,7 +973,9 @@ public class StorageDataLib
 
         game_buffer["m_mapData"] = m_mapData;
     }
+    #endregion
 
+    #region ItemPickPointData
     private static bool LoadItemPickPointData(JsonNode data)
     {
         for (int i = 0; i < StorageData.m_itemPickPointData.m_itemPickPointDatas.Length; i++)
@@ -1036,7 +1049,9 @@ public class StorageDataLib
 
         game_buffer["m_itemPickPointData"] = m_itemPickPointData;
     }
+    #endregion
 
+    #region ScenarioProgressData
     private static bool LoadScenarioProgressData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1049,7 +1064,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region ScenaioFlagSetTimer
     private static bool LoadScenaioFlagSetTimer(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1062,7 +1079,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region ItemStorageData
     private static bool LoadItemStorageData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1075,7 +1094,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region FixedTimeData
     private static bool LoadFixedTimeData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1088,7 +1109,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region GradeUpData
     private static bool LoadGradeUpData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1101,7 +1124,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region MaterialData
     private static bool LoadMaterialData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1114,7 +1139,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region ColosseumData
     private static bool LoadColosseumData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1127,7 +1154,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region FarmData
     private static bool LoadFarmData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1140,7 +1169,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region TradeData
     private static bool LoadTradeData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1153,7 +1184,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region TrainingData
     private static bool LoadTrainingData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1166,7 +1199,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region TrainingMenuData
     private static bool LoadTrainingMenuData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1179,7 +1214,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region DigitalMessangerData
     private static bool LoadDigitalMessangerData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1192,7 +1229,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region DigiviceMapData
     private static bool LoadDigiviceMapData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1205,7 +1244,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region AreaArrivalFlag
     private static bool LoadAreaArrivalFlag(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1218,7 +1259,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region DailyQuestData
     private static bool LoadDailyQuestData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1231,7 +1274,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region IjigenBoxData
     private static bool LoadIjigenBoxData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1244,7 +1289,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region DigimonCardFlag
     private static bool LoadDigimonCardFlag(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1257,7 +1304,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region BattleRecord
     private static bool LoadBattleRecord(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1270,7 +1319,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region QuestItemCounter
     private static bool LoadQuestItemCounter(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1283,7 +1334,9 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 
+    #region PlayTimeData
     private static bool LoadPlayTimeData(JsonNode data)
     {
         string example = (string)data["example"];
@@ -1296,4 +1349,5 @@ public class StorageDataLib
         exampleData["example"] = "example";
         game_buffer["exampleData"] = exampleData;
     }
+    #endregion
 }
