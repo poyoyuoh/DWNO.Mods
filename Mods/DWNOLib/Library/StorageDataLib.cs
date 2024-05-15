@@ -262,6 +262,9 @@ public class StorageDataLib
         if (!LoadTradeData(data))
             return false;
 
+        if (!LoadTrainingData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -292,6 +295,7 @@ public class StorageDataLib
         SaveColosseumData(game_buffer);
         SaveFarmData(game_buffer);
         SaveTradeData(game_buffer);
+        SaveTrainingData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1607,15 +1611,43 @@ public class StorageDataLib
     #region TrainingData
     private static bool LoadTrainingData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_trainingData.m_trainingDatas.Length; i++)
+        {
+            TrainingData trainingData = StorageData.m_trainingData.m_trainingDatas[i];
+            trainingData.m_id = (uint)data["m_trainingData"]["m_trainingDatas"][i.ToString()]["m_id"];
+            trainingData.m_training_exp = (int)data["m_trainingData"]["m_trainingDatas"][i.ToString()]["m_training_exp"];
+            trainingData.m_current_grade = (int)data["m_trainingData"]["m_trainingDatas"][i.ToString()]["m_current_grade"];
+            trainingData.m_next_grade = (int)data["m_trainingData"]["m_trainingDatas"][i.ToString()]["m_next_grade"];
+            trainingData.m_grade_up_time = (float)data["m_trainingData"]["m_trainingDatas"][i.ToString()]["m_grade_up_time"];
+        }
+
+        StorageData.m_trainingData.m_isLastBouns = (bool)data["m_trainingData"]["m_isLastBouns"];
+        StorageData.m_trainingData.m_trainingTotalCount = (int)data["m_trainingData"]["m_trainingTotalCount"];
         return true;
     }
 
     private static void SaveTrainingData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_trainingData = new Dictionary<string, object>();
+
+        Dictionary<int, object> m_trainingDatas = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_trainingData.m_trainingDatas.Length; i++)
+        {
+            TrainingData trainingData = StorageData.m_trainingData.m_trainingDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_id"] = trainingData.m_id;
+            data["m_training_exp"] = trainingData.m_training_exp;
+            data["m_current_grade"] = trainingData.m_current_grade;
+            data["m_next_grade"] = trainingData.m_next_grade;
+            data["m_grade_up_time"] = trainingData.m_grade_up_time;
+            m_trainingDatas[i] = data;
+        }
+        m_trainingData["m_trainingDatas"] = m_trainingDatas;
+
+        m_trainingData["m_isLastBouns"] = StorageData.m_trainingData.m_isLastBouns;
+        m_trainingData["m_trainingTotalCount"] = StorageData.m_trainingData.m_trainingTotalCount;
+
+        game_buffer["m_trainingData"] = m_trainingData;
     }
     #endregion
 
