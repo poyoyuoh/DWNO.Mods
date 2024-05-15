@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using UnityEngine;
+using static CFlagSetTimer;
+using static ShopItemData;
 
 namespace DWNOLib.Library;
 public class StorageDataLib
@@ -125,6 +126,7 @@ public class StorageDataLib
             StorageData.m_optionData.m_OptionData.m_Mouse[i] = (short)data["m_OptionData"]["KeyConfig"]["m_Mouse"][i.ToString()];
         }
 
+        ScreenResolution.SetResolution((ScreenResolution.Resolution)StorageData.m_optionData.m_OptionData.m_Resolution, StorageData.m_optionData.m_OptionData.m_ScreenMode);
         return true;
     }
 
@@ -233,6 +235,30 @@ public class StorageDataLib
         if (!LoadItemPickPointData(data))
             return false;
 
+        if (!LoadScenarioProgressData(data))
+            return false;
+
+        if (!LoadScenaioFlagSetTimer(data))
+            return false;
+
+        if (!LoadItemStorageData(data))
+            return false;
+
+        if (!LoadFixedTimeData(data))
+            return false;
+
+        if (!LoadGradeUpData(data))
+            return false;
+
+        if (!LoadMaterialData(data))
+            return false;
+
+        if (!LoadColosseumData(data))
+            return false;
+
+        if (!LoadPlayTimeData(data))
+            return false;
+
         return true;
     }
 
@@ -251,6 +277,14 @@ public class StorageDataLib
         SaveWorldData(game_buffer);
         SaveMapData(game_buffer);
         SaveItemPickPointData(game_buffer);
+        SaveScenarioProgressData(game_buffer);
+        SaveScenaioFlagSetTimer(game_buffer);
+        SaveItemStorageData(game_buffer);
+        SaveFixedTimeData(game_buffer);
+        SaveGradeUpData(game_buffer);
+        SaveMaterialData(game_buffer);
+        SaveColosseumData(game_buffer);
+        SavePlayTimeData(game_buffer);
     }
     #endregion
 
@@ -301,7 +335,7 @@ public class StorageDataLib
         SaveFileInfo["TownGradeUp"] = flag;
 
         SaveFileInfo["m_PlayTime"] = StorageData.m_PlayTimeData.m_PlayTime;
-        SaveFileInfo["m_timeStamp"] = DateTime.Now.ToBinary();
+        SaveFileInfo["m_timeStamp"] = System.DateTime.Now.ToBinary();
 
         game_buffer["SaveFileInfo"] = SaveFileInfo;
     }
@@ -1054,105 +1088,386 @@ public class StorageDataLib
     #region ScenarioProgressData
     private static bool LoadScenarioProgressData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (uint i = 0; i < StorageData.m_ScenarioProgressData.m_ScenarioFlag.GetNumWork(); i++)
+        {
+            StorageData.m_ScenarioProgressData.m_ScenarioFlag.SetBitFlagWark(i, (ulong)data["m_ScenarioProgressData"]["m_ScenarioFlag"][i.ToString()]);
+        }
+
+        for (int i = 0; i < StorageData.m_ScenarioProgressData.m_ScenarioCounter.Length; i++)
+        {
+            StorageData.m_ScenarioProgressData.m_ScenarioCounter[i] = (int)data["m_ScenarioProgressData"]["m_ScenarioCounter"][i.ToString()];
+        }
+
+        for (int i = 0; i < StorageData.m_ScenarioProgressData.m_ScenarioFloatValue.Length; i++)
+        {
+            StorageData.m_ScenarioProgressData.m_ScenarioFloatValue[i] = (int)data["m_ScenarioProgressData"]["m_ScenarioFloatValue"][i.ToString()];
+        }
+
+        StorageData.m_ScenarioProgressData.m_Chapter = (CScenarioProgressData.Chapter)(uint)data["m_ScenarioProgressData"]["m_ChapterNo"];
+
         return true;
     }
 
     private static void SaveScenarioProgressData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_ScenarioProgressData = new Dictionary<string, object>();
+
+        Dictionary<uint, object> m_ScenarioFlag = new Dictionary<uint, object>();
+        for (uint i = 0; i < StorageData.m_ScenarioProgressData.m_ScenarioFlag.GetNumWork(); i++)
+        {
+            m_ScenarioFlag[i] = StorageData.m_ScenarioProgressData.m_ScenarioFlag.GetBitFlagWark(i);
+        }
+        m_ScenarioProgressData["m_ScenarioFlag"] = m_ScenarioFlag;
+
+        Dictionary<int, object> m_ScenarioCounter = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_ScenarioProgressData.m_ScenarioCounter.Length; i++)
+        {
+            m_ScenarioCounter[i] = StorageData.m_ScenarioProgressData.m_ScenarioCounter[i];
+        }
+        m_ScenarioProgressData["m_ScenarioCounter"] = m_ScenarioCounter;
+
+        Dictionary<int, object> m_ScenarioFloatValue = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_ScenarioProgressData.m_ScenarioFloatValue.Length; i++)
+        {
+            m_ScenarioFloatValue[i] = StorageData.m_ScenarioProgressData.m_ScenarioFloatValue[i];
+        }
+        m_ScenarioProgressData["m_ScenarioFloatValue"] = m_ScenarioFloatValue;
+
+        m_ScenarioProgressData["m_ChapterNo"] = (uint)StorageData.m_ScenarioProgressData.m_ChapterNo;
+
+        game_buffer["m_ScenarioProgressData"] = m_ScenarioProgressData;
     }
     #endregion
 
     #region ScenaioFlagSetTimer
     private static bool LoadScenaioFlagSetTimer(JsonNode data)
     {
-        string example = (string)data["example"];
+        StorageData.m_ScenaioFlagSetTimer.ClearTimer();
+
+        for (int i = 0; i < StorageData.m_ScenaioFlagSetTimer.m_numTimerMax; i++)
+        {
+            CTimerData cTimerData = new CTimerData();
+            cTimerData.m_TimeLeft = (float)data["m_ScenaioFlagSetTimer"][i.ToString()]["m_TimeLeft"];
+            cTimerData.m_FlagSetId = (uint)data["m_ScenaioFlagSetTimer"][i.ToString()]["m_FlagSetId"];
+            cTimerData.m_Operation = (bool)data["m_ScenaioFlagSetTimer"][i.ToString()]["m_Operation"];
+            cTimerData.m_InterVal = (float)data["m_ScenaioFlagSetTimer"][i.ToString()]["m_InterVal"];
+            StorageData.m_ScenaioFlagSetTimer.AddTimer(cTimerData);
+        }
+
         return true;
     }
 
     private static void SaveScenaioFlagSetTimer(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<uint, object> m_ScenaioFlagSetTimer = new Dictionary<uint, object>();
+
+        uint num = 0u;
+        foreach (Il2CppSystem.Collections.Generic.KeyValuePair<uint, CTimerData> activeTimer in StorageData.m_ScenaioFlagSetTimer.m_ActiveTimers)
+        {
+            CTimerData value = activeTimer.Value;
+            Dictionary<string, object> timer = new Dictionary<string, object>();
+            timer["m_TimeLeft"] = value.m_TimeLeft;
+            timer["m_FlagSetId"] = value.m_FlagSetId;
+            timer["m_Operation"] = value.m_Operation;
+            timer["m_InterVal"] = value.m_InterVal;
+            m_ScenaioFlagSetTimer[num] = timer;
+            num++;
+        }
+
+        uint num2 = StorageData.m_ScenaioFlagSetTimer.m_numTimerMax - num;
+        CTimerData cTimerData = new CTimerData();
+        for (uint i = 0; i < num2; i++)
+        {
+            Dictionary<string, object> timerData = new Dictionary<string, object>();
+            timerData["m_TimeLeft"] = cTimerData.m_TimeLeft;
+            timerData["m_FlagSetId"] = cTimerData.m_FlagSetId;
+            timerData["m_Operation"] = cTimerData.m_Operation;
+            timerData["m_InterVal"] = cTimerData.m_InterVal;
+            m_ScenaioFlagSetTimer[num + i] = timerData;
+        }
+
+        game_buffer["m_ScenaioFlagSetTimer"] = m_ScenaioFlagSetTimer;
     }
     #endregion
 
     #region ItemStorageData
     private static bool LoadItemStorageData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_ItemStorageData.m_itemDataListTbl.Length; i++)
+        {
+            if (StorageData.m_ItemStorageData.m_itemDataListTbl[i] == null)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < StorageData.m_ItemStorageData.m_itemDataListTbl[i].Count; j++)
+            {
+                if (StorageData.m_ItemStorageData.m_itemDataListTbl[i][j] != null)
+                {
+                    if (data["m_ItemStorageData"]["m_itemDataListTbl"][i.ToString()][j.ToString()] != null)
+                    {
+                        StorageData.m_ItemStorageData.m_itemDataListTbl[i][j].m_itemID = (uint)data["m_ItemStorageData"]["m_itemDataListTbl"][i.ToString()][j.ToString()]["m_itemID"];
+                        StorageData.m_ItemStorageData.m_itemDataListTbl[i][j].m_itemNum = (int)data["m_ItemStorageData"]["m_itemDataListTbl"][i.ToString()][j.ToString()]["m_itemNum"];
+                    }
+                }
+            }
+        }
+
+        List<int> keys = new List<int>();
+        foreach (int key in StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList.Keys)
+            keys.Add(key);
+
+        for (int i = 0; i < StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList.Values.Count; i++)
+        {
+            if (data["m_ItemStorageData"]["m_shopItemData"][i.ToString()] == null)
+                continue;
+
+            int key = keys[i];
+
+            if (StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData == null)
+                continue;
+
+            for (int j = 0; j < StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData.Count; j++)
+            {
+                if (data["m_ItemStorageData"]["m_shopItemData"][i.ToString()][j.ToString()] == null)
+                    continue;
+
+                if (StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData[j] == null)
+                    continue;
+
+                for (uint k = 0; k < StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData[j].Count; k++)
+                {
+                    if (data["m_ItemStorageData"]["m_shopItemData"][i.ToString()][j.ToString()][k.ToString()] == null)
+                        continue;
+
+                    uint id = (uint)data["m_ItemStorageData"]["m_shopItemData"][i.ToString()][j.ToString()][k.ToString()]["id"];
+                    if (StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData[j] != null && StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData[j].ContainsKey(id))
+                    {
+                        StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData[j][id].Active = (bool)data["m_ItemStorageData"]["m_shopItemData"][i.ToString()][j.ToString()][k.ToString()]["Active"];
+                        StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList[key].m_productsData[j][id].SoldOutTimeCount = (int)data["m_ItemStorageData"]["m_shopItemData"][i.ToString()][j.ToString()][k.ToString()]["SoldOutTimeCount"];
+                    }
+                }
+            }
+        }
+
         return true;
     }
 
     private static void SaveItemStorageData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_ItemStorageData = new Dictionary<string, object>();
+
+        Dictionary<int, object> m_itemDataListTbl = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_ItemStorageData.m_itemDataListTbl.Length; i++)
+        {
+            if (StorageData.m_ItemStorageData.m_itemDataListTbl[i] == null)
+            {
+                continue;
+            }
+
+            Dictionary<int, object> items = new Dictionary<int, object>();
+            for (int j = 0; j < StorageData.m_ItemStorageData.m_itemDataListTbl[i].Count; j++)
+            {
+                if (StorageData.m_ItemStorageData.m_itemDataListTbl[i][j] != null)
+                {
+                    if (StorageData.m_ItemStorageData.m_itemDataListTbl[i][j].m_itemID != System.UInt32.MaxValue)
+                    {
+                        Dictionary<string, object> item = new Dictionary<string, object>();
+                        item["m_itemID"] = StorageData.m_ItemStorageData.m_itemDataListTbl[i][j].m_itemID;
+                        item["m_itemNum"] = StorageData.m_ItemStorageData.m_itemDataListTbl[i][j].m_itemNum;
+                        items[j] = item;
+                    }
+                }
+            }
+            m_itemDataListTbl[i] = items;
+        }
+        m_ItemStorageData["m_itemDataListTbl"] = m_itemDataListTbl;
+
+        Dictionary<int, object> m_shopItemData = new Dictionary<int, object>();
+
+        if (StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList != null)
+        {
+            foreach (SellerActiveInfo value in StorageData.m_ItemStorageData.m_shopItemData.m_sellerActiveInfoList.Values)
+            {
+                Dictionary<int, object> sellerActiveInfo = new Dictionary<int, object>();
+                for (int i = 0; i < value.m_productsData.Count; i++)
+                {
+                    Dictionary<int, object> m_productsData = new Dictionary<int, object>();
+                    List<ShopItemData.SellerActiveInfo.ShopItemData> array = new List<SellerActiveInfo.ShopItemData>();
+                    if (value.m_productsData[i] != null)
+                    {
+                        foreach (ShopItemData.SellerActiveInfo.ShopItemData data in value.m_productsData[i].Values)
+                            array.Add(data);
+
+                    }
+
+                    if (array.Count == 0)
+                        continue;
+
+                    for (int j = 0; j < array.Count; j++)
+                    {
+                        Dictionary<string, object> data = new Dictionary<string, object>();
+                        data["id"] = array[j].MasterData.id;
+                        data["Active"] = array[j].Active;
+                        data["SoldOutTimeCount"] = array[j].SoldOutTimeCount;
+                        m_productsData[j] = data;
+                    }
+                    sellerActiveInfo[i] = m_productsData;
+                }
+                m_shopItemData[m_shopItemData.Count] = sellerActiveInfo;
+            }
+            m_ItemStorageData["m_shopItemData"] = m_shopItemData;
+        }
+
+        game_buffer["m_ItemStorageData"] = m_ItemStorageData;
     }
     #endregion
 
     #region FixedTimeData
     private static bool LoadFixedTimeData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_FixedTimeData.OnTimeList.Count; i++)
+        {
+            FixedOnTimeData fixedOnTimeData = StorageData.m_FixedTimeData.OnTimeList[i];
+            if (fixedOnTimeData != null)
+            {
+                fixedOnTimeData.m_actionID = (FixedTimeData.ActionID)(int)data["m_FixedTimeData"][i.ToString()]["m_actionID"];
+                fixedOnTimeData.m_nowDay = (WorldData.DAY)(int)data["m_FixedTimeData"][i.ToString()]["m_nowDay"];
+                fixedOnTimeData.m_nowWeak = (WorldData.WEAK)(int)data["m_FixedTimeData"][i.ToString()]["m_nowWeak"];
+                fixedOnTimeData.m_nowSeason = (WorldData.SEASON)(int)data["m_FixedTimeData"][i.ToString()]["m_nowSeason"];
+                fixedOnTimeData.m_setHour = (int)data["m_FixedTimeData"][i.ToString()]["m_setHour"];
+                fixedOnTimeData.m_setMinutes = (int)data["m_FixedTimeData"][i.ToString()]["m_setMinutes"];
+                fixedOnTimeData.m_loopFunc = (bool)data["m_FixedTimeData"][i.ToString()]["m_loopFunc"];
+                fixedOnTimeData.m_state = (FixedOnTimeData.State)(int)data["m_FixedTimeData"][i.ToString()]["m_state"];
+            }
+        }
+
         return true;
     }
 
     private static void SaveFixedTimeData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<int, object> m_FixedTimeData = new Dictionary<int, object>();
+
+        for (int i = 0; i < StorageData.m_FixedTimeData.OnTimeList.Count; i++)
+        {
+            FixedOnTimeData fixedOnTimeData = StorageData.m_FixedTimeData.OnTimeList[i];
+            if (fixedOnTimeData != null)
+            {
+                Dictionary<string, object> data = new Dictionary<string, object>();
+                data["m_actionID"] = (int)fixedOnTimeData.m_actionID;
+                data["m_nowDay"] = (int)fixedOnTimeData.m_nowDay;
+                data["m_nowWeak"] = (int)fixedOnTimeData.m_nowWeak;
+                data["m_nowSeason"] = (int)fixedOnTimeData.m_nowSeason;
+                data["m_setHour"] = fixedOnTimeData.m_setHour;
+                data["m_setMinutes"] = fixedOnTimeData.m_setMinutes;
+                data["m_loopFunc"] = fixedOnTimeData.m_loopFunc;
+                data["m_state"] = (int)fixedOnTimeData.m_state;
+                m_FixedTimeData[i] = data;
+            }
+        }
+
+        game_buffer["m_FixedTimeData"] = m_FixedTimeData;
     }
     #endregion
 
     #region GradeUpData
     private static bool LoadGradeUpData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_gradeUpData.m_gradeUpDatas.Length; i++)
+        {
+            TownGradeUpData townGradeUpData = StorageData.m_gradeUpData.m_gradeUpDatas[i];
+            townGradeUpData.m_id = (uint)data["m_gradeUpData"][i.ToString()]["m_id"];
+            townGradeUpData.m_current_grade = (int)data["m_gradeUpData"][i.ToString()]["m_current_grade"];
+            townGradeUpData.m_next_grade = (int)data["m_gradeUpData"][i.ToString()]["m_next_grade"];
+            townGradeUpData.m_grade_up_time = (float)data["m_gradeUpData"][i.ToString()]["m_grade_up_time"];
+        }
         return true;
     }
 
     private static void SaveGradeUpData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<int, object> m_gradeUpData = new Dictionary<int, object>();
+
+        for (int i = 0; i < StorageData.m_gradeUpData.m_gradeUpDatas.Length; i++)
+        {
+            TownGradeUpData townGradeUpData = StorageData.m_gradeUpData.m_gradeUpDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_id"] = townGradeUpData.m_id;
+            data["m_current_grade"] = townGradeUpData.m_current_grade;
+            data["m_next_grade"] = townGradeUpData.m_next_grade;
+            data["m_grade_up_time"] = townGradeUpData.m_grade_up_time;
+            m_gradeUpData[i] = data;
+        }
+
+        game_buffer["m_gradeUpData"] = m_gradeUpData;
     }
     #endregion
 
     #region MaterialData
     private static bool LoadMaterialData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_materialData.m_materialDatas.Length; i++)
+        {
+            MaterialData materialData = StorageData.m_materialData.m_materialDatas[i];
+            materialData.m_id = (uint)data["m_materialData"][i.ToString()]["m_id"];
+            materialData.m_material_num = (int)data["m_materialData"][i.ToString()]["m_material_num"];
+            materialData.m_is_get = (bool)data["m_materialData"][i.ToString()]["m_is_get"];
+        }
         return true;
     }
 
     private static void SaveMaterialData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<int, object> m_materialData = new Dictionary<int, object>();
+
+        for (int i = 0; i < StorageData.m_materialData.m_materialDatas.Length; i++)
+        {
+            MaterialData materialData = StorageData.m_materialData.m_materialDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_id"] = materialData.m_id;
+            data["m_material_num"] = materialData.m_material_num;
+            data["m_is_get"] = materialData.m_is_get;
+            m_materialData[i] = data;
+        }
+
+        game_buffer["m_materialData"] = m_materialData;
     }
     #endregion
 
     #region ColosseumData
     private static bool LoadColosseumData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_colosseumData.m_colosseumDatas.Length; i++)
+        {
+            ColosseumData colosseumData = StorageData.m_colosseumData.m_colosseumDatas[i];
+            colosseumData.m_id = (uint)data["m_colosseumData"]["m_colosseumDatas"][i.ToString()]["m_id"];
+            colosseumData.m_is_clear = (bool)data["m_colosseumData"]["m_colosseumDatas"][i.ToString()]["m_is_clear"];
+            colosseumData.m_is_clear_today = (bool)data["m_colosseumData"]["m_colosseumDatas"][i.ToString()]["m_is_clear_today"];
+        }
+
+        StorageData.m_colosseumData.m_colosseumTotalWinCount = (int)data["m_colosseumData"]["m_colosseumTotalWinCount"];
         return true;
     }
 
     private static void SaveColosseumData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_colosseumData = new Dictionary<string, object>();
+
+        Dictionary<int, object> m_colosseumDatas = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_colosseumData.m_colosseumDatas.Length; i++)
+        {
+            ColosseumData colosseumData = StorageData.m_colosseumData.m_colosseumDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_id"] = colosseumData.m_id;
+            data["m_is_clear"] = colosseumData.m_is_clear;
+            data["m_is_clear_today"] = colosseumData.m_is_clear_today;
+            m_colosseumDatas[i] = data;
+        }
+        m_colosseumData["m_colosseumDatas"] = m_colosseumDatas;
+        m_colosseumData["m_colosseumTotalWinCount"] = StorageData.m_colosseumData.m_colosseumTotalWinCount;
+
+        game_buffer["m_colosseumData"] = m_colosseumData;
     }
     #endregion
 
@@ -1339,15 +1654,15 @@ public class StorageDataLib
     #region PlayTimeData
     private static bool LoadPlayTimeData(JsonNode data)
     {
-        string example = (string)data["example"];
+        StorageData.m_PlayTimeData.m_PlayTime = (double)data["m_PlayTimeData"]["m_PlayTime"];
         return true;
     }
 
     private static void SavePlayTimeData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_PlayTimeData = new Dictionary<string, object>();
+        m_PlayTimeData["m_PlayTime"] = StorageData.m_PlayTimeData.m_PlayTime;
+        game_buffer["m_PlayTimeData"] = m_PlayTimeData;
     }
     #endregion
 }

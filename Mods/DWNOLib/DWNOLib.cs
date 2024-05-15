@@ -53,6 +53,7 @@ public class DWNOLib : BasePlugin
         harmony = Harmony.CreateAndPatchAll(typeof(DWNOLib));
 
         // Patches
+        Harmony.CreateAndPatchAll(typeof(AppMainScriptPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(CScenarioScriptPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(CsvbPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(HashIdSearchClassPatch), harmony.Id);
