@@ -259,6 +259,9 @@ public class StorageDataLib
         if (!LoadFarmData(data))
             return false;
 
+        if (!LoadTradeData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -288,6 +291,7 @@ public class StorageDataLib
         SaveMaterialData(game_buffer);
         SaveColosseumData(game_buffer);
         SaveFarmData(game_buffer);
+        SaveTradeData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1534,15 +1538,69 @@ public class StorageDataLib
     #region TradeData
     private static bool LoadTradeData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_tradeData.m_tradeDatas.Length; i++)
+        {
+            TradeData tradeData = StorageData.m_tradeData.m_tradeDatas[i];
+
+            tradeData.m_id = (uint)data["m_tradeData"]["m_tradeDatas"][i.ToString()]["m_id"];
+
+            for (int j = 0; j < tradeData.m_correction_kinds.Length; j++)
+            {
+                tradeData.m_correction_kinds[j] = (int)data["m_tradeData"]["m_tradeDatas"][i.ToString()]["m_correction_kinds"][j.ToString()];
+            }
+
+            for (int j = 0; j < tradeData.m_market_history.Length; j++)
+            {
+                tradeData.m_market_history[j] = (int)data["m_tradeData"]["m_tradeDatas"][i.ToString()]["m_market_history"][j.ToString()];
+            }
+
+            tradeData.m_num = (int)data["m_tradeData"]["m_tradeDatas"][i.ToString()]["m_num"];
+            tradeData.m_is_today_buy = (bool)data["m_tradeData"]["m_tradeDatas"][i.ToString()]["m_is_today_buy"];
+        }
+
+        StorageData.m_tradeData.m_totalTradeSale = (uint)data["m_tradeData"]["m_totalTradeSale"];
+        StorageData.m_tradeData.m_maxTradeSale = (uint)data["m_tradeData"]["m_maxTradeSale"];
+
         return true;
     }
 
     private static void SaveTradeData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_tradeData = new Dictionary<string, object>();
+
+        Dictionary<int, object> m_tradeDatas = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_tradeData.m_tradeDatas.Length; i++)
+        {
+            TradeData tradeData = StorageData.m_tradeData.m_tradeDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+
+            data["m_id"] = tradeData.m_id;
+
+            Dictionary<int, object> m_correction_kinds = new Dictionary<int, object>();
+            for (int j = 0; j < tradeData.m_correction_kinds.Length; j++)
+            {
+                m_correction_kinds[j] = tradeData.m_correction_kinds[j];
+            }
+            data["m_correction_kinds"] = m_correction_kinds;
+
+            Dictionary<int, object> m_market_history = new Dictionary<int, object>();
+            for (int j = 0; j < tradeData.m_market_history.Length; j++)
+            {
+                m_market_history[j] = tradeData.m_market_history[j];
+            }
+            data["m_market_history"] = m_market_history;
+
+            data["m_num"] = tradeData.m_num;
+            data["m_is_today_buy"] = tradeData.m_is_today_buy;
+
+            m_tradeDatas[i] = data;
+        }
+        m_tradeData["m_tradeDatas"] = m_tradeDatas;
+
+        m_tradeData["m_totalTradeSale"] = StorageData.m_tradeData.m_totalTradeSale;
+        m_tradeData["m_maxTradeSale"] = StorageData.m_tradeData.m_maxTradeSale;
+
+        game_buffer["m_tradeData"] = m_tradeData;
     }
     #endregion
 
