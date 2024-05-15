@@ -277,6 +277,9 @@ public class StorageDataLib
         if (!LoadAreaArrivalFlag(data))
             return false;
 
+        if (!LoadDailyQuestData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -312,6 +315,7 @@ public class StorageDataLib
         SaveDigitalMessangerData(game_buffer);
         SaveDigiviceMapData(game_buffer);
         SaveAreaArrivalFlag(game_buffer);
+        SaveDailyQuestData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1854,15 +1858,20 @@ public class StorageDataLib
     #region DailyQuestData
     private static bool LoadDailyQuestData(JsonNode data)
     {
-        string example = (string)data["example"];
+        StorageData.m_DailyQuestData.m_QuestOrderDate = (long)data["m_DailyQuestData"]["m_QuestOrderDate"];
+        StorageData.m_DailyQuestData.m_QuestNo = (byte)data["m_DailyQuestData"]["m_QuestNo"];
+
         return true;
     }
 
     private static void SaveDailyQuestData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_DailyQuestData = new Dictionary<string, object>();
+
+        m_DailyQuestData["m_QuestOrderDate"] = StorageData.m_DailyQuestData.m_QuestOrderDate;
+        m_DailyQuestData["m_QuestNo"] = StorageData.m_DailyQuestData.m_QuestNo;
+
+        game_buffer["m_DailyQuestData"] = m_DailyQuestData;
     }
     #endregion
 
