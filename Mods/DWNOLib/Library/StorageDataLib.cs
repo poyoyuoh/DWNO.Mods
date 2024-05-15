@@ -268,6 +268,9 @@ public class StorageDataLib
         if (!LoadTrainingMenuData(data))
             return false;
 
+        if (!LoadDigitalMessangerData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -300,6 +303,7 @@ public class StorageDataLib
         SaveTradeData(game_buffer);
         SaveTrainingData(game_buffer);
         SaveTrainingMenuData(game_buffer);
+        SaveDigitalMessangerData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1669,6 +1673,7 @@ public class StorageDataLib
         }
 
         StorageData.m_trainingMenuData.m_keep_time = (float)data["m_trainingMenuData"]["m_keep_time"];
+
         return true;
     }
 
@@ -1703,15 +1708,44 @@ public class StorageDataLib
     #region DigitalMessangerData
     private static bool LoadDigitalMessangerData(JsonNode data)
     {
-        string example = (string)data["example"];
+        StorageData.m_digitalMessangerData.m_DigitalMessengerLastSendData.m_LatestMailID = (int)data["m_digitalMessangerData"]["m_LatestMailID"];
+
+        for (int i = 0; i < StorageData.m_digitalMessangerData.m_DigitalMessengerData.Length; i++)
+        {
+            DigitalMessengerData digitalMessengerData = StorageData.m_digitalMessangerData.m_DigitalMessengerData[i];
+            digitalMessengerData.m_State = (int)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_State"];
+            digitalMessengerData.m_AttachedItem1 = (uint)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_AttachedItem1"];
+            digitalMessengerData.m_AttachedItem2 = (uint)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_AttachedItem2"];
+            digitalMessengerData.m_AttachedItem3 = (uint)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_AttachedItem3"];
+            digitalMessengerData.m_AttachedPoint = (uint)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_AttachedPoint"];
+            digitalMessengerData.m_ReceiptTime = (float)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_ReceiptTime"];
+        }
+
         return true;
     }
 
     private static void SaveDigitalMessangerData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_digitalMessangerData = new Dictionary<string, object>();
+
+        m_digitalMessangerData["m_LatestMailID"] = StorageData.m_digitalMessangerData.m_DigitalMessengerLastSendData.m_LatestMailID;
+
+        Dictionary<int, object> m_DigitalMessengerData = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_digitalMessangerData.m_DigitalMessengerData.Length; i++)
+        {
+            DigitalMessengerData digitalMessengerData = StorageData.m_digitalMessangerData.m_DigitalMessengerData[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_State"] = digitalMessengerData.m_State;
+            data["m_AttachedItem1"] = digitalMessengerData.m_AttachedItem1;
+            data["m_AttachedItem2"] = digitalMessengerData.m_AttachedItem2;
+            data["m_AttachedItem3"] = digitalMessengerData.m_AttachedItem3;
+            data["m_AttachedPoint"] = digitalMessengerData.m_AttachedPoint;
+            data["m_ReceiptTime"] = digitalMessengerData.m_ReceiptTime;
+            m_DigitalMessengerData[i] = data;
+        }
+        m_digitalMessangerData["m_DigitalMessengerData"] = m_DigitalMessengerData;
+
+        game_buffer["m_digitalMessangerData"] = m_digitalMessangerData;
     }
     #endregion
 
