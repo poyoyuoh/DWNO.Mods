@@ -274,6 +274,9 @@ public class StorageDataLib
         if (!LoadDigiviceMapData(data))
             return false;
 
+        if (!LoadAreaArrivalFlag(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -308,6 +311,7 @@ public class StorageDataLib
         SaveTrainingMenuData(game_buffer);
         SaveDigitalMessangerData(game_buffer);
         SaveDigiviceMapData(game_buffer);
+        SaveAreaArrivalFlag(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1826,15 +1830,24 @@ public class StorageDataLib
     #region AreaArrivalFlag
     private static bool LoadAreaArrivalFlag(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (uint i = 0u; i < StorageData.m_AreaArrivalFlag.m_Flags.GetNumWork(); i++)
+        {
+            StorageData.m_AreaArrivalFlag.m_Flags.SetBitFlagWark(i, (ulong)data["m_AreaArrivalFlag"][i.ToString()]);
+        }
+
         return true;
     }
 
     private static void SaveAreaArrivalFlag(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<ulong, object> m_AreaArrivalFlag = new Dictionary<ulong, object>();
+
+        for (uint i = 0u; i < StorageData.m_AreaArrivalFlag.m_Flags.GetNumWork(); i++)
+        {
+            m_AreaArrivalFlag[i] = StorageData.m_AreaArrivalFlag.m_Flags.GetBitFlagWark(i);
+        }
+
+        game_buffer["m_AreaArrivalFlag"] = m_AreaArrivalFlag;
     }
     #endregion
 
