@@ -256,6 +256,9 @@ public class StorageDataLib
         if (!LoadColosseumData(data))
             return false;
 
+        if (!LoadFarmData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -284,6 +287,7 @@ public class StorageDataLib
         SaveGradeUpData(game_buffer);
         SaveMaterialData(game_buffer);
         SaveColosseumData(game_buffer);
+        SaveFarmData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1474,15 +1478,56 @@ public class StorageDataLib
     #region FarmData
     private static bool LoadFarmData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_farmData.m_farmDatas.Length; i++)
+        {
+            FarmData farmData = StorageData.m_farmData.m_farmDatas[i];
+            farmData.m_id = (uint)data["m_farmData"]["m_farmDatas"][i.ToString()]["m_id"];
+            farmData.m_condition = (int)data["m_farmData"]["m_farmDatas"][i.ToString()]["m_condition"];
+            farmData.m_pick_time = (float)data["m_farmData"]["m_farmDatas"][i.ToString()]["m_pick_time"];
+            farmData.m_pick_num = (int)data["m_farmData"]["m_farmDatas"][i.ToString()]["m_pick_num"];
+            farmData.m_pick_day_bonus = (bool)data["m_farmData"]["m_farmDatas"][i.ToString()]["m_pick_day_bonus"];
+        }
+
+        for (int i = 0; i < StorageData.m_farmData.m_farmItemDatas.Length; i++)
+        {
+            FarmItemData farmItemData = StorageData.m_farmData.m_farmItemDatas[i];
+            farmItemData.m_id = (uint)data["m_farmData"]["m_farmItemDatas"][i.ToString()]["m_id"];
+            farmItemData.m_is_get = (bool)data["m_farmData"]["m_farmItemDatas"][i.ToString()]["m_is_get"];
+        }
+
         return true;
     }
 
     private static void SaveFarmData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_farmData = new Dictionary<string, object>();
+
+        Dictionary<int, object> m_farmDatas = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_farmData.m_farmDatas.Length; i++)
+        {
+            FarmData farmData = StorageData.m_farmData.m_farmDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_id"] = farmData.m_id;
+            data["m_condition"] = farmData.m_condition;
+            data["m_pick_time"] = farmData.m_pick_time;
+            data["m_pick_num"] = farmData.m_pick_num;
+            data["m_pick_day_bonus"] = farmData.m_pick_day_bonus;
+            m_farmDatas[i] = data;
+        }
+        m_farmData["m_farmDatas"] = m_farmDatas;
+
+        Dictionary<int, object> m_farmItemDatas = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_farmData.m_farmItemDatas.Length; i++)
+        {
+            FarmItemData farmItemData = StorageData.m_farmData.m_farmItemDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_id"] = farmItemData.m_id;
+            data["m_is_get"] = farmItemData.m_is_get;
+            m_farmItemDatas[i] = data;
+        }
+        m_farmData["m_farmItemDatas"] = m_farmItemDatas;
+
+        game_buffer["m_farmData"] = m_farmData;
     }
     #endregion
 
