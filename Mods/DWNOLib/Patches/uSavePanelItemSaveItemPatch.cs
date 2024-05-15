@@ -53,7 +53,7 @@ internal class uSavePanelItemSaveItemPatch
             int _hour = (int)(playtime / 3600.0);
             int _minute = (int)((playtime % 3600.0) / 60.0);
             int _second = (int)(playtime % 60.0);
-            __instance.m_playTimeText.text = Language.GetString("tamer_play_time") + " " + _hour.ToString("D4") + ":" + _minute.ToString("D2") + ":" + _second.ToString("D2");
+            __instance.m_playTimeText.text = Language.GetString("tamer_play_time") + "  " + _hour.ToString("D4") + ":" + _minute.ToString("D2") + ":" + _second.ToString("D2");
 
             System.DateTime timestamp = System.DateTime.FromBinary((long)data["SaveFileInfo"]["m_timeStamp"]);
             __instance.m_timeStampText.text = string.Format("{0:0000} / {1:00} / {2:00}  {3:00} : {4:00}", timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, timestamp.Minute);
