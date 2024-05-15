@@ -19,6 +19,10 @@ public class DialogManager
 
     private static GameObject DialogObject { get; set; } = null;
 
+    private static GameObject TitleWindow { get; set; } = null;
+
+    private static GameObject MessageWindow { get; set; } = null;
+
     private static Text TitleText { get; set; } = null;
 
     private static Text MessageText { get; set; } = null;
@@ -82,6 +86,10 @@ public class DialogManager
                     break;
                 case 2:
                     TitleText.text = DialogBuffer[DialogIndex].title;
+                    if (TitleText.text == "")
+                        TitleWindow.SetActive(false);
+                    else
+                        TitleWindow.SetActive(true);
                     MessageText.text = DialogBuffer[DialogIndex].message;
                     if (CallbackEnded)
                     {
@@ -173,6 +181,8 @@ public class DialogManager
         DialogObject = UnityEngine.Object.Instantiate(MainGameManager.Ref.eventScene.transform.FindChild("Event_Field_UI").gameObject);
         DialogObject.transform.SetParent(DWNOLib.Canvas.transform);
         DialogObject.transform.Find("Base/Window").gameObject.SetActive(true);
+        TitleWindow = DialogObject.transform.Find("Base/Window/Anim/Name_Window").gameObject;
+        MessageWindow = DialogObject.transform.Find("Base/Window/Anim/Main_Window").gameObject;
         TitleText = DialogObject.transform.Find("Base/Window/Anim/Text/Name").transform.GetComponent<Text>();
         MessageText = DialogObject.transform.Find("Base/Window/Anim/Text/Normal").transform.GetComponent<Text>();
         MessageText.alignment = TextAnchor.MiddleCenter;
