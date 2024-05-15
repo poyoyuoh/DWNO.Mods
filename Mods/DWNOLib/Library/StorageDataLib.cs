@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using UnityEngine;
 using static CFlagSetTimer;
+using static CQuestItemCounter;
 using static ShopItemData;
 
 namespace DWNOLib.Library;
@@ -283,6 +284,9 @@ public class StorageDataLib
         if (!LoadDigimonCardFlag(data))
             return false;
 
+        if (!LoadQuestItemCounter(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -322,6 +326,7 @@ public class StorageDataLib
         SaveAreaArrivalFlag(game_buffer);
         SaveDailyQuestData(game_buffer);
         SaveDigimonCardFlag(game_buffer);
+        SaveQuestItemCounter(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1952,15 +1957,41 @@ public class StorageDataLib
     #region QuestItemCounter
     private static bool LoadQuestItemCounter(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < 64; i++)
+        {
+            if (data["m_QuestItemCounter"][i.ToString()] == null)
+                continue;
+
+            if ((uint)data["m_QuestItemCounter"][i.ToString()]["m_ItemId"] == uint.MaxValue || (uint)data["m_QuestItemCounter"][i.ToString()]["m_Quota"] == 0u)
+                continue;
+
+            QuestItemCountInfo questItemCountInfo = new QuestItemCountInfo();
+            questItemCountInfo.m_ItemId = (uint)data["m_QuestItemCounter"][i.ToString()]["m_ItemId"];
+            questItemCountInfo.m_Count = (uint)data["m_QuestItemCounter"][i.ToString()]["m_Count"];
+            questItemCountInfo.m_Quota = (uint)data["m_QuestItemCounter"][i.ToString()]["m_Quota"];
+            questItemCountInfo.m_FlagSetId = (uint)data["m_QuestItemCounter"][i.ToString()]["m_FlagSetId"];
+            StorageData.m_QuestItemCounter.m_QuestItemCount.Add(questItemCountInfo);
+        }
+
         return true;
     }
 
     private static void SaveQuestItemCounter(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<int, object> m_QuestItemCounter = new Dictionary<int, object>();
+
+        for (int i = 0; i < StorageData.m_QuestItemCounter.m_QuestItemCount.Count; i++)
+        {
+            QuestItemCountInfo questItemCountInfo = StorageData.m_QuestItemCounter.m_QuestItemCount[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_ItemId"] = questItemCountInfo.m_ItemId;
+            data["m_Count"] = questItemCountInfo.m_Count;
+            data["m_Quota"] = questItemCountInfo.m_Quota;
+            data["m_FlagSetId"] = questItemCountInfo.m_FlagSetId;
+            m_QuestItemCounter[i] = data;
+        }
+
+        game_buffer["m_QuestItemCounter"] = m_QuestItemCounter;
     }
     #endregion
 
