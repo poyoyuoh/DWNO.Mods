@@ -44,7 +44,9 @@ public class DialogManager
 
         DialogBuffer = dialogs;
         PrepareUI();
-        
+
+        KeyStillDown = CheckPressedKey();
+
         AppMainScript.Ref.StartCoroutineManaged2(DialogUpdate().WrapToIl2Cpp());
     }
 
@@ -71,7 +73,12 @@ public class DialogManager
                     {
                         DialogObject.SetActive(true);
                         UpdateStep++;
-                    }    
+                    }
+                    else
+                    {
+                        if (CheckPressedKey())
+                            KeyStillDown = true;
+                    }
                     break;
                 case 2:
                     TitleText.text = DialogBuffer[DialogIndex].title;

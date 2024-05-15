@@ -1,10 +1,13 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using DWNOLib.Extras;
+using DWNOLib.Library;
 using DWNOLib.Patches;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using static DWNOLib.Library.DialogManager;
 
 namespace DWNOLib;
 
@@ -41,6 +44,19 @@ public class DWNOLib : BasePlugin
             "Special");
 
         Logger.Log("DWNOLib is currently in alpha, DO NOT USE IN PRODUCTION!");
+
+        // Replace the box talk event to disable the "online" screen.
+        // TODO: Give the player the free item, maybe make them be in the storage by default if possible ?
+        ParameterManagerLib.AddLanguage(20, "The box doesn't seems to work...");
+        ParameterManagerLib.CustomScriptCommands["BOX_TALK00"] = () =>
+        {
+            List<Dialog> dialogs = new List<Dialog>()
+            {
+                new Dialog() { message = Language.GetString(20) },
+            };
+
+            StartDialog(dialogs);
+        };
 
         if (Debug)
             UnitTests.Start();
