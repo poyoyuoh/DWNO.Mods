@@ -265,6 +265,9 @@ public class StorageDataLib
         if (!LoadTrainingData(data))
             return false;
 
+        if (!LoadTrainingMenuData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -296,6 +299,7 @@ public class StorageDataLib
         SaveFarmData(game_buffer);
         SaveTradeData(game_buffer);
         SaveTrainingData(game_buffer);
+        SaveTrainingMenuData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1654,15 +1658,45 @@ public class StorageDataLib
     #region TrainingMenuData
     private static bool LoadTrainingMenuData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_trainingMenuData.m_trainingMenuDatas.Length; i++)
+        {
+            TrainingMenuData trainingMenuData = StorageData.m_trainingMenuData.m_trainingMenuDatas[i];
+            trainingMenuData.m_ids[0] = (uint)data["m_trainingMenuData"]["m_trainingMenuDatas"][i.ToString()]["m_ids"]["0"];
+            trainingMenuData.m_ids[1] = (uint)data["m_trainingMenuData"]["m_trainingMenuDatas"][i.ToString()]["m_ids"]["1"];
+            trainingMenuData.m_bit = (int)data["m_trainingMenuData"]["m_trainingMenuDatas"][i.ToString()]["m_bit"];
+            trainingMenuData.m_time = (float)data["m_trainingMenuData"]["m_trainingMenuDatas"][i.ToString()]["m_time"];
+            trainingMenuData.m_weight = (int)data["m_trainingMenuData"]["m_trainingMenuDatas"][i.ToString()]["m_weight"];
+        }
+
+        StorageData.m_trainingMenuData.m_keep_time = (float)data["m_trainingMenuData"]["m_keep_time"];
         return true;
     }
 
     private static void SaveTrainingMenuData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_trainingMenuData = new Dictionary<string, object>();
+
+        Dictionary<int, object> m_trainingMenuDatas = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_trainingMenuData.m_trainingMenuDatas.Length; i++)
+        {
+            TrainingMenuData trainingMenuData = StorageData.m_trainingMenuData.m_trainingMenuDatas[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+
+            Dictionary<int, object> m_ids = new Dictionary<int, object>();
+            m_ids[0] = trainingMenuData.m_ids[0];
+            m_ids[1] = trainingMenuData.m_ids[1];
+            data["m_ids"] = m_ids;
+
+            data["m_bit"] = trainingMenuData.m_bit;
+            data["m_time"] = trainingMenuData.m_time;
+            data["m_weight"] = trainingMenuData.m_weight;
+            m_trainingMenuDatas[i] = data;
+        }
+        m_trainingMenuData["m_trainingMenuDatas"] = m_trainingMenuDatas;
+
+        m_trainingMenuData["m_keep_time"] = StorageData.m_trainingMenuData.m_keep_time;
+
+        game_buffer["m_trainingMenuData"] = m_trainingMenuData;
     }
     #endregion
 
