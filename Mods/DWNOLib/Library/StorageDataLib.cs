@@ -280,6 +280,9 @@ public class StorageDataLib
         if (!LoadDailyQuestData(data))
             return false;
 
+        if (!LoadDigimonCardFlag(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -316,6 +319,7 @@ public class StorageDataLib
         SaveDigiviceMapData(game_buffer);
         SaveAreaArrivalFlag(game_buffer);
         SaveDailyQuestData(game_buffer);
+        SaveDigimonCardFlag(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1893,15 +1897,38 @@ public class StorageDataLib
     #region DigimonCardFlag
     private static bool LoadDigimonCardFlag(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (uint i = 0u; i < StorageData.m_digimonCardFlag.recordMax; i++)
+        {
+            StorageData.m_digimonCardFlag.m_digimonCardFlag[i] = (bool)data["m_digimonCardFlag"]["m_digimonCardFlag"][i.ToString()];
+        }
+
+        for (uint i = 0u; i < StorageData.m_digimonCardFlag.recordMax; i++)
+        {
+            StorageData.m_digimonCardFlag.m_digimonCardNewFlag[i] = (bool)data["m_digimonCardFlag"]["m_digimonCardNewFlag"][i.ToString()];
+        }
+
         return true;
     }
 
     private static void SaveDigimonCardFlag(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_digimonCardFlag = new Dictionary<string, object>();
+
+        Dictionary<uint, object> m_digimonCardFlag2 = new Dictionary<uint, object>();
+        for (uint i = 0u; i < StorageData.m_digimonCardFlag.recordMax; i++)
+        {
+            m_digimonCardFlag2[i] = StorageData.m_digimonCardFlag.m_digimonCardFlag[i];
+        }
+        m_digimonCardFlag["m_digimonCardFlag"] = m_digimonCardFlag2;
+
+        Dictionary<uint, object> m_digimonCardNewFlag = new Dictionary<uint, object>();
+        for (uint i = 0u; i < StorageData.m_digimonCardFlag.recordMax; i++)
+        {
+            m_digimonCardNewFlag[i] = StorageData.m_digimonCardFlag.m_digimonCardNewFlag[i];
+        }
+        m_digimonCardFlag["m_digimonCardNewFlag"] = m_digimonCardNewFlag;
+
+        game_buffer["m_digimonCardFlag"] = m_digimonCardFlag;
     }
     #endregion
 
