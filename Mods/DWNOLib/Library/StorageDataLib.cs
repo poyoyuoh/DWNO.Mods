@@ -1716,6 +1716,9 @@ public class StorageDataLib
 
         for (int i = 0; i < StorageData.m_digitalMessangerData.m_DigitalMessengerData.Length; i++)
         {
+            if (data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()] == null)
+                continue;
+
             DigitalMessengerData digitalMessengerData = StorageData.m_digitalMessangerData.m_DigitalMessengerData[i];
             digitalMessengerData.m_State = (int)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_State"];
             digitalMessengerData.m_AttachedItem1 = (uint)data["m_digitalMessangerData"]["m_DigitalMessengerData"][i.ToString()]["m_AttachedItem1"];
@@ -1738,6 +1741,10 @@ public class StorageDataLib
         for (int i = 0; i < StorageData.m_digitalMessangerData.m_DigitalMessengerData.Length; i++)
         {
             DigitalMessengerData digitalMessengerData = StorageData.m_digitalMessangerData.m_DigitalMessengerData[i];
+
+            if (digitalMessengerData.m_State == 0)
+                continue;
+
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["m_State"] = digitalMessengerData.m_State;
             data["m_AttachedItem1"] = digitalMessengerData.m_AttachedItem1;
