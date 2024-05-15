@@ -271,6 +271,9 @@ public class StorageDataLib
         if (!LoadDigitalMessangerData(data))
             return false;
 
+        if (!LoadDigiviceMapData(data))
+            return false;
+
         if (!LoadPlayTimeData(data))
             return false;
 
@@ -304,6 +307,7 @@ public class StorageDataLib
         SaveTrainingData(game_buffer);
         SaveTrainingMenuData(game_buffer);
         SaveDigitalMessangerData(game_buffer);
+        SaveDigiviceMapData(game_buffer);
         SavePlayTimeData(game_buffer);
     }
     #endregion
@@ -1752,15 +1756,63 @@ public class StorageDataLib
     #region DigiviceMapData
     private static bool LoadDigiviceMapData(JsonNode data)
     {
-        string example = (string)data["example"];
+        for (int i = 0; i < StorageData.m_digiviceMapData.m_DigiviceMapSearchRateData.Length; i++)
+        {
+            if (StorageData.m_digiviceMapData.m_DigiviceMapSearchRateData[i] != null)
+            {
+                if (data["m_digiviceMapData"][i.ToString()] == null)
+                    continue;
+
+                DigiviceMapSearchRateData m_DigiviceMapSearchRateData = StorageData.m_digiviceMapData.m_DigiviceMapSearchRateData[i];
+
+                for (int j = 0; j < m_DigiviceMapSearchRateData.m_BitFlagArray.Length; j++)
+                {
+                    uint numWork = m_DigiviceMapSearchRateData.m_BitFlagArray[j].GetNumWork();
+                    for (uint k = 0u; k < numWork; k++)
+                    {
+                        m_DigiviceMapSearchRateData.m_BitFlagArray[j].SetBitFlagWark(k, (ulong)data["m_digiviceMapData"][i.ToString()]["m_BitFlagArray"][j.ToString()][k.ToString()]);
+                    }
+                    m_DigiviceMapSearchRateData.m_ArrivaleRateValueArray[j] = (int)data["m_digiviceMapData"][i.ToString()]["m_ArrivaleRateValueArray"][j.ToString()];
+                }
+            }
+        }
+
         return true;
     }
 
     private static void SaveDigiviceMapData(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<int, object> m_digiviceMapData = new Dictionary<int, object>();
+
+        for (int i = 0; i < StorageData.m_digiviceMapData.m_DigiviceMapSearchRateData.Length; i++)
+        {
+            if (StorageData.m_digiviceMapData.m_DigiviceMapSearchRateData[i] != null)
+            {
+                DigiviceMapSearchRateData m_DigiviceMapSearchRateData = StorageData.m_digiviceMapData.m_DigiviceMapSearchRateData[i];
+                Dictionary<string, object> data = new Dictionary<string, object>();
+
+                Dictionary<int, object> m_BitFlagArray = new Dictionary<int, object>();
+                Dictionary<int, object> m_ArrivaleRateValueArray = new Dictionary<int, object>();
+                for (int j = 0; j < m_DigiviceMapSearchRateData.m_BitFlagArray.Length; j++)
+                {
+                    Dictionary<ulong, object> m_BitFlagArray2 = new Dictionary<ulong, object>();
+                    uint numWork = m_DigiviceMapSearchRateData.m_BitFlagArray[j].GetNumWork();
+                    for (uint k = 0u; k < numWork; k++)
+                    {
+                        m_BitFlagArray2[k] = m_DigiviceMapSearchRateData.m_BitFlagArray[j].GetBitFlagWark(k);
+                    }
+                    m_BitFlagArray[j] = m_BitFlagArray2;
+
+                    m_ArrivaleRateValueArray[j] = m_DigiviceMapSearchRateData.m_ArrivaleRateValueArray[j];
+                }
+                data["m_BitFlagArray"] = m_BitFlagArray;
+                data["m_ArrivaleRateValueArray"] = m_ArrivaleRateValueArray;
+
+                m_digiviceMapData[i] = data;
+            }
+        }
+
+        game_buffer["m_digiviceMapData"] = m_digiviceMapData;
     }
     #endregion
 
