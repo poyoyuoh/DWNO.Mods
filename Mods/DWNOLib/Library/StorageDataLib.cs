@@ -286,6 +286,8 @@ public class StorageDataLib
         if (!LoadPlayTimeData(data))
             return false;
 
+        StorageData.m_gradeUpData.SetupLastSeasonAfterReadSaveData();
+
         return true;
     }
 
