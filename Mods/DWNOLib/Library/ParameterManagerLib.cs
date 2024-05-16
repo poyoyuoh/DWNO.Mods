@@ -77,7 +77,14 @@ public class ParameterManagerLib
         if (!LanguageDatas.ContainsKey(language))
             LanguageDatas.Add(language, new Dictionary<uint, string> { });
 
-        LanguageDatas[language].Add(id, text);
+        if (LanguageDatas[language].ContainsKey(id))
+        {
+            Logger.Log($"LanguageDatas for language {language} already contain the id {id} and will get overriden.", Logger.LogType.Warning);
+            Logger.Log($"{LanguageDatas[language][id]} -> {text}", Logger.LogType.Warning);
+            LanguageDatas[language][id] = text;
+        }
+        else
+            LanguageDatas[language].Add(id, text);
     }
 
     public static void AddTextLanguage(string text, uint id, UnityEngine.SystemLanguage language = UnityEngine.SystemLanguage.English)
@@ -85,7 +92,14 @@ public class ParameterManagerLib
         if (!LanguageDatas.ContainsKey(language))
             LanguageStringDatas.Add(language, new Dictionary<string, uint> { });
 
-        LanguageStringDatas[language].Add(text, id);
+        if (LanguageStringDatas[language].ContainsKey(text))
+        {
+            Logger.Log($"LanguageStringDatas for language {language} already contain the text {text} and will get overriden.", Logger.LogType.Warning);
+            Logger.Log($"{LanguageStringDatas[language][text]} -> {id}", Logger.LogType.Warning);
+            LanguageStringDatas[language][text] = id;
+        }
+        else
+            LanguageStringDatas[language].Add(text, id);
     }
 
     /// <summary>
