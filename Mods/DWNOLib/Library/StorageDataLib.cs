@@ -436,6 +436,15 @@ public class StorageDataLib
             StorageData.m_playerData.m_AttacSkillkFlag[i] = (bool)data["m_playerData"]["m_AttacSkillkFlag"][i.ToString()];
         }
 
+        for (uint i = 0; i < AppMainScript.parameterManager.m_DigimonID_LIST.Count; i++)
+        {
+            if (i >= StorageData.m_playerData.m_EvolutionFlag.m_NumFlags)
+                break;
+
+            if (data["m_playerData"]["m_EvolutionFlag"][AppMainScript.parameterManager.m_DigimonID_LIST[(int)i].ToString()] != null)
+                StorageData.m_playerData.m_EvolutionFlag[i] = (bool)data["m_playerData"]["m_EvolutionFlag"][AppMainScript.parameterManager.m_DigimonID_LIST[(int)i].ToString()];
+        }
+
         for (int i = 0; i < AppMainScript.parameterManager.m_DigimonID_LIST.Count; i++)
         {
             if (i >= StorageData.m_playerData.m_EvolutionConditionFlag.Length)
@@ -535,6 +544,16 @@ public class StorageDataLib
             m_AttacSkillkFlag[i] = StorageData.m_playerData.m_AttacSkillkFlag[i];
         }
         m_playerData["m_AttacSkillkFlag"] = m_AttacSkillkFlag;
+
+        Dictionary<uint, bool> m_EvolutionFlag = new Dictionary<uint, bool>();
+        for (uint i = 0; i < AppMainScript.parameterManager.m_DigimonID_LIST.Count; i++)
+        {
+            if (i >= StorageData.m_playerData.m_EvolutionFlag.m_NumFlags)
+                break;
+
+            m_EvolutionFlag[AppMainScript.parameterManager.m_DigimonID_LIST[(int)i]] = StorageData.m_playerData.m_EvolutionFlag[i];
+        }
+        m_playerData["m_EvolutionFlag"] = m_EvolutionFlag;
 
         Dictionary<uint, Dictionary<uint, bool>> m_EvolutionConditionFlag = new Dictionary<uint, Dictionary<uint, bool>>();
         for (int i = 0; i < AppMainScript.parameterManager.m_DigimonID_LIST.Count; i++)
