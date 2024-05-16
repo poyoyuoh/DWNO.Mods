@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using UnityEngine;
+using static CBattleRecord;
 using static CFlagSetTimer;
 using static CQuestItemCounter;
 using static ShopItemData;
@@ -284,6 +285,9 @@ public class StorageDataLib
         if (!LoadDigimonCardFlag(data))
             return false;
 
+        if (!LoadBattleRecord(data))
+            return false;
+
         if (!LoadQuestItemCounter(data))
             return false;
 
@@ -326,6 +330,7 @@ public class StorageDataLib
         SaveAreaArrivalFlag(game_buffer);
         SaveDailyQuestData(game_buffer);
         SaveDigimonCardFlag(game_buffer);
+        SaveBattleRecord(game_buffer);
         SaveQuestItemCounter(game_buffer);
         SavePlayTimeData(game_buffer);
     }
@@ -1942,15 +1947,72 @@ public class StorageDataLib
     #region BattleRecord
     private static bool LoadBattleRecord(JsonNode data)
     {
-        string example = (string)data["example"];
+        StorageData.m_BattleRecord.m_BattleCount = (uint)data["m_BattleRecord"]["m_BattleCount"];
+        StorageData.m_BattleRecord.m_WinCount = (uint)data["m_BattleRecord"]["m_WinCount"];
+        StorageData.m_BattleRecord.m_TotalKillCount = (uint)data["m_BattleRecord"]["m_TotalKillCount"];
+
+        for (int i = 0; i < ParameterManagerLib.DigimonDataList.Count; i++)
+        {
+            if (data["m_BattleRecord"]["m_KillCountDictionary"][ParameterManagerLib.DigimonDataList[i].m_id.ToString()] == null)
+                continue;
+
+            if (i >= StorageData.m_BattleRecord.m_KillCountDictionary.Count)
+                break;
+
+            if (StorageData.m_BattleRecord.m_KillCountDictionary.ContainsKey(ParameterManagerLib.DigimonDataList[i].m_id))
+            {
+                StorageData.m_BattleRecord.m_KillCountDictionary[ParameterManagerLib.DigimonDataList[i].m_id] = (uint)data["m_BattleRecord"]["m_KillCountDictionary"][ParameterManagerLib.DigimonDataList[i].m_id.ToString()];
+            }
+        }
+
+        for (int i = 0; i < 16; i++)
+        {
+            if (data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()] == null)
+                continue;
+
+            if ((uint)data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()]["m_DigimonId"] == ParameterDigimonData.GetNGDigimonID() || (uint)data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()]["m_Quota"] == 0u)
+                continue;
+
+            QuestKillCountInfo questKillCountInfo = new QuestKillCountInfo();
+            questKillCountInfo.m_DigimonId = (uint)data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()]["m_DigimonId"];
+            questKillCountInfo.m_KillCount = (uint)data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()]["m_KillCount"];
+            questKillCountInfo.m_Quota = (uint)data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()]["m_Quota"];
+            questKillCountInfo.m_FlagSetId = (uint)data["m_BattleRecord"]["m_QuestKillCount"][i.ToString()]["m_FlagSetId"];
+            StorageData.m_BattleRecord.m_QuestKillCount.Add(questKillCountInfo);
+        }
+
         return true;
     }
 
     private static void SaveBattleRecord(Dictionary<string, object> game_buffer)
     {
-        Dictionary<string, object> exampleData = new Dictionary<string, object>();
-        exampleData["example"] = "example";
-        game_buffer["exampleData"] = exampleData;
+        Dictionary<string, object> m_BattleRecord = new Dictionary<string, object>();
+
+        m_BattleRecord["m_BattleCount"] = StorageData.m_BattleRecord.m_BattleCount;
+        m_BattleRecord["m_WinCount"] = StorageData.m_BattleRecord.m_WinCount;
+        m_BattleRecord["m_TotalKillCount"] = StorageData.m_BattleRecord.m_TotalKillCount;
+
+        Dictionary<uint, object> m_KillCountDictionary = new Dictionary<uint, object>();
+        foreach (Il2CppSystem.Collections.Generic.KeyValuePair<uint, uint> item in StorageData.m_BattleRecord.m_KillCountDictionary)
+        {
+            m_KillCountDictionary[item.Key] = item.Value;
+        }
+        m_BattleRecord["m_KillCountDictionary"] = m_KillCountDictionary;
+
+        Dictionary<int, object> m_QuestKillCount = new Dictionary<int, object>();
+        for (int i = 0; i < StorageData.m_BattleRecord.m_QuestKillCount.Count; i++)
+        {
+            QuestKillCountInfo questKillCountInfo = StorageData.m_BattleRecord.m_QuestKillCount[i];
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data["m_DigimonId"] = questKillCountInfo.m_DigimonId;
+            data["m_KillCount"] = questKillCountInfo.m_KillCount;
+            data["m_Quota"] = questKillCountInfo.m_Quota;
+            data["m_FlagSetId"] = questKillCountInfo.m_FlagSetId;
+            m_QuestKillCount[i] = data;
+        }
+        m_BattleRecord["m_QuestKillCount"] = m_QuestKillCount;
+
+        game_buffer["m_BattleRecord"] = m_BattleRecord;
     }
     #endregion
 
