@@ -8,7 +8,11 @@ internal class ParameterDigimonDataPatch
     [HarmonyPrefix]
     private static bool ParameterDigimonData_FindBaseIdToModelName_Prefix(string modelName, ref uint __result)
     {
-        __result = ParameterManagerLib.DigimonDataList.Find(x => x.m_mdlName == modelName).m_id;
+        ParameterDigimonData @params = ParameterManagerLib.DigimonDataList.Find(x => x.m_mdlName == modelName);
+        if (@params == null)
+            return true;
+
+        __result = @params.m_id;
         return false;
     }
 }
