@@ -189,14 +189,71 @@ internal class UnitTests
             List<Dialog> dialogs = new List<Dialog>()
             {
                 new Dialog() { title = Language.GetString("c001"), message = Language.GetString(10), callback = action, one_shot_callback = false},
-                new Dialog() { title = Language.GetString("c001"), message = Language.GetString(11)},
+                new Dialog() { title = Language.GetString("c001"), message = Language.GetString(11) },
             };
 
             // Don't forget this function to actually start the dialog.
             StartDialog(dialogs);
         };
 
-        // Add an npc in Nigh Plains - Ruins Lake.
+        ParameterManagerLib.CustomScriptCommands["LIB_DEBUG_TALKNPC2"] = () =>
+        {
+            MainGameManager.Ref.RequestMapChange(99, 1);
+        };
+
+        ParameterManagerLib.AddLanguage(12, "hi");
+        ParameterManagerLib.AddLanguage(13, "Puppetmon took a vacation :(");
+
+        ParameterManagerLib.CustomScriptCommands["LIB_DEBUG_TALKNPCENEMY"] = () =>
+        {
+            Action battle_end = null;
+            Action end_action = null;
+
+            battle_end = () =>
+            {
+                List<Dialog> dialogs = new List<Dialog>()
+                {
+                    new Dialog() { title = Language.GetString("f029"), message = ">:(" },
+                    new Dialog() { title = Language.GetString("f029"), message = "T-T" },
+                };
+
+                StartDialog(dialogs, null, true);
+            };
+
+            end_action = () =>
+            {
+                uint[] array = [5, 6, 7];
+                Commands.StartNPCBattle(array, battle_end);
+            };
+
+            List<Dialog> dialogs = new List<Dialog>()
+            {
+                new Dialog() { title = Language.GetString("f029"), message = Language.GetString(12)},
+                new Dialog() { title = Language.GetString("f029"), message = Language.GetString(13)},
+            };
+
+            StartDialog(dialogs, end_action, false);
+        };
+
+        // Add an npc in Nigh Plains - Ruins Lake. (Random talk)
         ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(2, 7), m_UintId: MainGameManager.UNITID.Npc04, m_CmdBlock: "LIB_DEBUG_TALKNPC", m_Px: 112, m_Py: 22.3f, m_Pz: 70, m_Ry: 318);
+
+        // npc in Nigh Plains - Ruins Lake that teleport the player to the tutorial area.
+        ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(2, 7), m_MdlName: "e021", m_Name: 1, m_UintId: MainGameManager.UNITID.Npc05, m_CmdBlock: "LIB_DEBUG_TALKNPC2", m_Px: 133f, m_Py: 22.3f, m_Pz: 92, m_Ry: 285);
+
+        // Enemy npc example
+        // 1st is for the actual npc.
+        // 2nd is for the enemy npc (is invisible). It must have an m_UintId of Enemy15 to Enemy19. Must have a m_NpcEnemyParamId pointing to the date of that id.
+        // 3rd is the data of that npc.
+        ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(99, 1), m_MdlName: "f029", m_Name: 1, m_UintId: MainGameManager.UNITID.Npc00, m_CmdBlock: "LIB_DEBUG_TALKNPCENEMY", m_Px: -0.6714f, m_Py: -0.2324f, m_Pz: 34.6682f, m_Ry: 180);
+        ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(99, 1), m_MdlName: "f029", m_Name: 5, m_UintId: MainGameManager.UNITID.Enemy15, m_ChkInput: 0, m_CmdBlock: "", m_Px: -0.6714f, m_Py: -0.2324f, m_Pz: 34.6682f, m_Ry: 180, m_NpcEnemyParamId: 10);
+        ParameterManagerLib.AddNPCEnemy(new System.Numerics.Vector2(99, 1), m_ParamId: 10, m_Level: 1, m_BattleBgm: 4);
+
+        // multiple npc battle
+        ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(99, 1), m_MdlName: "f025", m_Name: 6, m_UintId: MainGameManager.UNITID.Enemy16, m_ChkInput: 0, m_CmdBlock: "", m_Px: -0.6714f, m_Py: -0.2324f, m_Pz: 34.6682f, m_Ry: 180, m_NpcEnemyParamId: 11);
+        ParameterManagerLib.AddNPCEnemy(new System.Numerics.Vector2(99, 1), m_ParamId: 11, m_Level: 1, m_BattleBgm: 4);
+
+        ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(99, 1), m_MdlName: "f039", m_Name: 7, m_UintId: MainGameManager.UNITID.Enemy17, m_ChkInput: 0, m_CmdBlock: "", m_Px: -0.6714f, m_Py: -0.2324f, m_Pz: 34.6682f, m_Ry: 180, m_NpcEnemyParamId: 12);
+        ParameterManagerLib.AddNPCEnemy(new System.Numerics.Vector2(99, 1), m_ParamId: 12, m_Level: 1, m_BattleBgm: 4);
     }
 }

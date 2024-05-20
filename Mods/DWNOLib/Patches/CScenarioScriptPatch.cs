@@ -30,4 +30,20 @@ internal class CScenarioScriptPatch
         }
         return true;
     }
+
+    [HarmonyPatch(typeof(CScenarioScript), "BattleEndCB")]
+    [HarmonyPrefix]
+    private static bool CScenarioScript_BattleEndCB_Prefix()
+    {
+        if (Commands.BattleEndCB != null)
+        {
+            if (MainGameComponent.Ref.battleResult == MainGameComponent.BATTLE_RESULT.Win)
+            {
+                Commands.BattleEndCB.Invoke();
+                Commands.BattleEndCB = null;
+                return false;
+            }
+        }
+        return true;
+    }
 }

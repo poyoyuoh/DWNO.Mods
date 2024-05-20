@@ -138,6 +138,39 @@ public class ParameterManagerLoader
         return __result;
     }
 
+    public static bool LoadNPCEnemyDatas(bool isEndLoad, int _mapNo, int _areaNo, bool __result, MainGameManager __instance)
+    {
+        Vector2 key = new Vector2(_mapNo, _areaNo);
+        if (__result == false)
+        {
+            if (ParameterManagerLib.CustomNPCEnemyDatas.ContainsKey(key))
+            {
+                Il2CppReferenceArray<ParameterNpcEnemyData> RefArray2 = new Il2CppReferenceArray<ParameterNpcEnemyData>(ParameterManagerLib.CustomNPCEnemyDatas[key].ToArray());
+                Il2CppArrayBase<ParameterNpcEnemyData> ArrayBase2 = Il2CppArrayBase<ParameterNpcEnemyData>.WrapNativeGenericArrayPointer(RefArray2.Pointer);
+                Csvb<ParameterNpcEnemyData> csvb = new Csvb<ParameterNpcEnemyData>();
+                csvb.m_params = ArrayBase2;
+                __instance.m_NpcEnemyData = csvb;
+                ParameterManagerPointer.NPCEnemyPointer = __instance.m_NpcEnemyData.Pointer;
+                ParameterManagerLib.NPCEnemyDataList = __instance.m_NpcEnemyData.m_params.ToList();
+                return true;
+            }
+        }
+        else if (isEndLoad && ParameterManagerLib.CustomNPCEnemyDatas.ContainsKey(key))
+        {
+            ParameterManagerLib.NPCEnemyDataList = __instance.m_NpcEnemyData.m_params.ToList();
+
+            for (int i = 0; i < ParameterManagerLib.CustomNPCEnemyDatas[key].Count; i++)
+                ParameterManagerLib.NPCEnemyDataList.Add(ParameterManagerLib.CustomNPCEnemyDatas[key][i]);
+
+            Il2CppReferenceArray<ParameterNpcEnemyData> RefArray = new Il2CppReferenceArray<ParameterNpcEnemyData>(ParameterManagerLib.NPCEnemyDataList.ToArray());
+            Il2CppArrayBase<ParameterNpcEnemyData> ArrayBase = Il2CppArrayBase<ParameterNpcEnemyData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+            __instance.m_NpcEnemyData.m_params = ArrayBase;
+            ParameterManagerPointer.NPCEnemyPointer = __instance.m_NpcEnemyData.Pointer;
+            return true;
+        }
+        return __result;
+    }
+
     private static void LoadCommonSelectWindowDatas(ParameterManager m_parameters)
     {
         List<Csvb<ParameterCommonSelectWindow>> CommonSelectWindowCsvbList = m_parameters.m_csvbCommonSelectWindowData.ToList();

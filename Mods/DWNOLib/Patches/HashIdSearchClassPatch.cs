@@ -59,6 +59,16 @@ internal class HashIdSearchClassPatch
             }
         }
 
+        if (data.Pointer == ParameterManagerPointer.NPCEnemyPointer)
+        {
+            ParameterNpcEnemyData @params = ParameterManagerLib.NPCEnemyDataList.Find(x => x.m_ParamId == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
         return true;
     }
 }

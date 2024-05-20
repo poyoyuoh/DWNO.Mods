@@ -31,6 +31,10 @@ public class DialogManager
 
     private static List<Dialog> DialogBuffer { get; set; } = new List<Dialog>();
 
+    private static Action EndCallback { get; set; } = null;
+
+    private static bool EndRestoreUI { get; set; } = false;
+
     public static bool CallbackEnded { get; set; } = true;
 
     private static bool KeyStillDown { get; set; } = false;
@@ -38,7 +42,7 @@ public class DialogManager
     /// <summary>
     /// Start a new dialog using the custom DialogManager. Look at <c>UnitTests</c> for usage example.
     /// </summary>
-    public static void StartDialog(List<Dialog> dialogs)
+    public static void StartDialog(List<Dialog> dialogs, Action endCallback = null, bool endRestoreUI = true)
     {
         if (MainGameManager.Ref.eventScene == null)
             return;
@@ -48,6 +52,9 @@ public class DialogManager
 
         DialogBuffer = dialogs;
         PrepareUI();
+
+        EndCallback = endCallback;
+        EndRestoreUI = endRestoreUI;
 
         KeyStillDown = CheckPressedKey();
 
@@ -119,7 +126,9 @@ public class DialogManager
                     }
                     break;
                 case 3:
-                    RestoreUI();
+                    if (EndRestoreUI)
+                        RestoreUI();
+                    DialogObject.SetActive(false);
                     UpdateStep++;
                     break;
             }
@@ -128,6 +137,9 @@ public class DialogManager
             yield return null;
         }
         KeyStillDown = false;
+        EndCallback?.Invoke();
+        EndCallback = null;
+        EndRestoreUI = true;
         yield break;
     }
 
@@ -208,6 +220,8 @@ public class DialogManager
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(0), UnitCtrlBase.ReqAction.Event);
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(1), UnitCtrlBase.ReqAction.Event);
 
+        MainGameComponent.Ref.m_StepProc[0]._ChangeMain(MainGame.STEP.Event);
+
         MainGameManager.GetPlayerCtrl().ResetFootPrint();
         MainGameManager.GetPartnerCtrl(0).ResetFootPrint();
         MainGameManager.GetPartnerCtrl(1).ResetFootPrint();
@@ -230,8 +244,6 @@ public class DialogManager
                 MainGameComponent.Ref.m_StepProc[0]._ReqAction(npc, UnitCtrlBase.ReqAction.Event);
             }
         }
-
-        //DialogObject.SetActive(true);
     }
 
     private static void RestoreUI()
@@ -242,6 +254,8 @@ public class DialogManager
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(0), UnitCtrlBase.ReqAction.Field);
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(1), UnitCtrlBase.ReqAction.Field);
 
+        MainGameComponent.Ref.m_StepProc[0]._ChangeMain(MainGame.STEP.Field);
+
         for (int i = 0; i < 15; i++)
         {
             EnemyCtrl enemyCtrl = MainGameManager.GetEnemyCtrl(i);
@@ -251,8 +265,6 @@ public class DialogManager
                 enemyCtrl.gameObject.SetActive(true);
             }
         }
-
-        DialogObject.SetActive(false);
     }
 
     private static void TestDialog()

@@ -72,6 +72,7 @@ public class DWNOLib : BasePlugin
         Harmony.CreateAndPatchAll(typeof(AppMainScriptPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(CScenarioScriptPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(CsvbPatch), harmony.Id);
+        Harmony.CreateAndPatchAll(typeof(EnemyManagerPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(HashIdSearchClassPatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(LanguagePatch), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(MainGameManagerPatch), harmony.Id);

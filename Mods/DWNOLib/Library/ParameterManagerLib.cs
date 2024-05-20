@@ -48,6 +48,8 @@ public class ParameterManagerLib
     public static Dictionary<Vector2, List<ParameterPlacementEnemy>> CustomPlacementEnemyDatas { get; set; } = new Dictionary<Vector2, List<ParameterPlacementEnemy>>();
 
     public static Dictionary<Vector2, List<ParameterPlacementNpc>> CustomPlacementNPCDatas { get; set; } = new Dictionary<Vector2, List<ParameterPlacementNpc>>();
+    
+    public static Dictionary<Vector2, List<ParameterNpcEnemyData>> CustomNPCEnemyDatas { get; set; } = new Dictionary<Vector2, List<ParameterNpcEnemyData>>();
 
     public static Dictionary<int, List<ParameterCommonSelectWindow>> CustomCommonSelectWindowDatas { get; set; } = new Dictionary<int, List<ParameterCommonSelectWindow>>();
 
@@ -67,6 +69,8 @@ public class ParameterManagerLib
     public static List<ParameterPlacementEnemy> PlacementEnemyDataList { get; set; } = new List<ParameterPlacementEnemy>();
 
     public static List<ParameterPlacementNpc> PlacementNPCDataList { get; set; } = new List<ParameterPlacementNpc>();
+
+    public static List<ParameterNpcEnemyData> NPCEnemyDataList { get; set; } = new List<ParameterNpcEnemyData>();
 
     public static List<ParameterShopItemData> ShopItemList { get; set; } = new List<ParameterShopItemData>();
 
@@ -583,6 +587,56 @@ public class ParameterManagerLib
             m_CmdBlock = m_CmdBlock,
             m_Facility = (int)m_Facility,
             m_NpcEnemyParamId = m_NpcEnemyParamId
+        });
+    }
+
+    public static void AddNPCEnemy(
+        Vector2 map_area,
+        uint m_ParamId,
+        //uint m_DigiParamId = 0x34ee6f05, // Never used
+        uint m_AtkParamId01 = 0xdb1a0de8,
+        uint m_AtkParamId02 = 0xc73e7d89,
+        uint m_AtkParamId03 = 0xc73e7d89,
+        uint m_AtkParamId04 = 0xc73e7d89,
+        int m_SpHp = -1,
+        int m_Level = 0,
+        int m_Hp = 0,
+        int m_Mp = 0,
+        int m_Str = 0,
+        int m_Def = 0,
+        int m_Int = 0,
+        int m_Spd = 0,
+        int m_permitDamage = -1,
+        int m_Money = 100,
+        int m_Exp = 10,
+        int m_DropItemTblIdx = 37,
+        int m_BattleBgm = 1
+    )
+    {
+        if (!CustomNPCEnemyDatas.ContainsKey(map_area))
+            CustomNPCEnemyDatas.Add(map_area, new List<ParameterNpcEnemyData>());
+
+        CustomNPCEnemyDatas[map_area].Add(new ParameterNpcEnemyData()
+        {
+            m_ParamId = m_ParamId,
+            //m_DigiParamId = m_DigiParamId,
+            m_AtkParamId01 = m_AtkParamId01,
+            m_AtkParamId02 = m_AtkParamId02,
+            m_AtkParamId03 = m_AtkParamId03,
+            m_AtkParamId04 = m_AtkParamId04,
+            m_SpHp = m_SpHp,
+            m_Level = m_Level,
+            m_Hp = m_Hp,
+            m_Mp = m_Mp,
+            m_Str = m_Str,
+            m_Def = m_Def,
+            m_Int = m_Int,
+            m_Spd = m_Spd,
+            m_permitDamage = m_permitDamage,
+            m_Money = m_Money,
+            m_Exp = m_Exp,
+            m_DropItemTblIdx = m_DropItemTblIdx,
+            m_BattleBgm = m_BattleBgm
         });
     }
 }

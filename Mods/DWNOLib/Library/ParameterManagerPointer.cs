@@ -12,4 +12,6 @@ public class ParameterManagerPointer
     public static IntPtr PlacementEnemyPointer { get; set; }
 
     public static IntPtr PlacementNPCPointer { get; set; }
+
+    public static IntPtr NPCEnemyPointer { get; set; }
 }
