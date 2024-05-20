@@ -17,7 +17,7 @@ public class DWNOLib : BasePlugin
 {
     internal const string GUID = "poyoyuoh.DWNO.DWNOLib";
     internal const string PluginName = "DWNOLib";
-    internal const string PluginVersion = "0.4.3";
+    internal const string PluginVersion = "0.5.3";
 
     public static GameObject Canvas {  get; private set; }
 
