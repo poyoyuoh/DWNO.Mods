@@ -15,7 +15,7 @@ public class Plugin : BasePlugin
 {
     internal const string GUID = "poyoyuoh.DWNO.ModelSwap";
     internal const string PluginName = "ModelSwap";
-    internal const string PluginVersion = "1.0.0";
+    internal const string PluginVersion = "1.1.0";
 
     private static ConfigEntry<string> ModelID;
     private static ConfigEntry<string> AnimationReplacement;
@@ -257,5 +257,12 @@ public class Plugin : BasePlugin
         __instance.m_move.SetDestinationAI(target.transform.position - (target.transform.position - __instance.m_Transform.position).normalized * (target.GetComponent<UnitCtrlBase>().unitRadius + __instance.unitRadius * 2f));
         __instance.m_isBattle = false;
         return false;
+    }
+
+    [HarmonyPatch(typeof(MapTriggerScript), "Start")]
+    [HarmonyPostfix]
+    public static void MapTriggerScript_Start_Postfix(MapTriggerScript __instance)
+    {
+        __instance.areaSize = new Vector3(__instance.areaSize.x, 10, __instance.areaSize.z);
     }
 }
