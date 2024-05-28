@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkipTutorials", "Mods\SkipT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DescriptiveEnemies", "Mods\DescriptiveEnemies\DescriptiveEnemies.csproj", "{399C0B82-FFC3-4582-8C54-88085FAE0A86}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlockAllEvoPaths", "Mods\BlockAllEvoPaths\BlockAllEvoPaths.csproj", "{1BE76FC8-63C7-4735-84EB-315EE6504C26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{399C0B82-FFC3-4582-8C54-88085FAE0A86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BE76FC8-63C7-4735-84EB-315EE6504C26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE76FC8-63C7-4735-84EB-315EE6504C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BE76FC8-63C7-4735-84EB-315EE6504C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BE76FC8-63C7-4735-84EB-315EE6504C26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
