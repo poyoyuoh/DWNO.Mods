@@ -88,12 +88,15 @@ public class ParameterManagerLoader
                 return true;
             }
         }
-        else if (isEndLoad && ParameterManagerLib.CustomPlacementEnemyDatas.ContainsKey(key))
+        else if (isEndLoad)
         {
             ParameterManagerLib.PlacementEnemyDataList = __instance.m_PlacementDataEnemy.m_params.ToList();
 
-            for (int i = 0; i < ParameterManagerLib.CustomPlacementEnemyDatas[key].Count; i++)
-                ParameterManagerLib.PlacementEnemyDataList.Add(ParameterManagerLib.CustomPlacementEnemyDatas[key][i]);
+            if (ParameterManagerLib.CustomPlacementEnemyDatas.ContainsKey(key))
+            {
+                for (int i = 0; i < ParameterManagerLib.CustomPlacementEnemyDatas[key].Count; i++)
+                    ParameterManagerLib.PlacementEnemyDataList.Add(ParameterManagerLib.CustomPlacementEnemyDatas[key][i]);
+            }
 
             Il2CppReferenceArray<ParameterPlacementEnemy> RefArray = new Il2CppReferenceArray<ParameterPlacementEnemy>(ParameterManagerLib.PlacementEnemyDataList.ToArray());
             Il2CppArrayBase<ParameterPlacementEnemy> ArrayBase = Il2CppArrayBase<ParameterPlacementEnemy>.WrapNativeGenericArrayPointer(RefArray.Pointer);
@@ -108,6 +111,7 @@ public class ParameterManagerLoader
     public static bool LoadNPCPlacementDatas(bool isEndLoad, int _mapNo, int _areaNo, bool __result, MainGameManager __instance)
     {
         Vector2 key = new Vector2(_mapNo, _areaNo);
+
         if (__result == false)
         {
             if (ParameterManagerLib.CustomPlacementNPCDatas.ContainsKey(key))
@@ -122,12 +126,25 @@ public class ParameterManagerLoader
                 return true;
             }
         }
-        else if (isEndLoad && ParameterManagerLib.CustomPlacementNPCDatas.ContainsKey(key))
+        else if (isEndLoad)
         {
             ParameterManagerLib.PlacementNPCDataList = __instance.m_PlacementDataNpc.m_params.ToList();
 
-            for (int i = 0; i < ParameterManagerLib.CustomPlacementNPCDatas[key].Count; i++)
-                ParameterManagerLib.PlacementNPCDataList.Add(ParameterManagerLib.CustomPlacementNPCDatas[key][i]);
+            if (ParameterManagerLib.CustomPlacementNPCDatas.ContainsKey(key))
+            {
+                for (int i = 0; i < ParameterManagerLib.CustomPlacementNPCDatas[key].Count; i++)
+                    ParameterManagerLib.PlacementNPCDataList.Add(ParameterManagerLib.CustomPlacementNPCDatas[key][i]);
+            }
+
+            //ParameterPlacementNpc @params = ParameterManagerLib.PlacementNPCDataList.Find(x => x.m_Name == 0x2fc0dec2);
+            //if (@params != null)
+            //    ParameterManagerLib.PlacementNPCDataList.Remove(@params);
+            //@params = ParameterManagerLib.PlacementNPCDataList.Find(x => x.m_Name == 0xb4ffeb05);
+            //if (@params != null)
+            //    ParameterManagerLib.PlacementNPCDataList.Remove(@params);
+            //@params = ParameterManagerLib.PlacementNPCDataList.Find(x => x.m_Name == 0x72e4259d);
+            //if (@params != null)
+            //    ParameterManagerLib.PlacementNPCDataList.Remove(@params);
 
             Il2CppReferenceArray<ParameterPlacementNpc> RefArray = new Il2CppReferenceArray<ParameterPlacementNpc>(ParameterManagerLib.PlacementNPCDataList.ToArray());
             Il2CppArrayBase<ParameterPlacementNpc> ArrayBase = Il2CppArrayBase<ParameterPlacementNpc>.WrapNativeGenericArrayPointer(RefArray.Pointer);
@@ -155,12 +172,15 @@ public class ParameterManagerLoader
                 return true;
             }
         }
-        else if (isEndLoad && ParameterManagerLib.CustomNPCEnemyDatas.ContainsKey(key))
+        else if (isEndLoad && __instance.m_NpcEnemyData != null)
         {
             ParameterManagerLib.NPCEnemyDataList = __instance.m_NpcEnemyData.m_params.ToList();
 
-            for (int i = 0; i < ParameterManagerLib.CustomNPCEnemyDatas[key].Count; i++)
-                ParameterManagerLib.NPCEnemyDataList.Add(ParameterManagerLib.CustomNPCEnemyDatas[key][i]);
+            if (ParameterManagerLib.CustomNPCEnemyDatas.ContainsKey(key))
+            {
+                for (int i = 0; i < ParameterManagerLib.CustomNPCEnemyDatas[key].Count; i++)
+                    ParameterManagerLib.NPCEnemyDataList.Add(ParameterManagerLib.CustomNPCEnemyDatas[key][i]);
+            }
 
             Il2CppReferenceArray<ParameterNpcEnemyData> RefArray = new Il2CppReferenceArray<ParameterNpcEnemyData>(ParameterManagerLib.NPCEnemyDataList.ToArray());
             Il2CppArrayBase<ParameterNpcEnemyData> ArrayBase = Il2CppArrayBase<ParameterNpcEnemyData>.WrapNativeGenericArrayPointer(RefArray.Pointer);

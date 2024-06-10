@@ -34,7 +34,7 @@ internal class UnitTests
         ParameterManagerLib.AddLanguage(2, "これはカスタム記述である", SystemLanguage.Japanese);
 
         // That's how you add a new digimon. You can individually specify what params you want to set with "ParamName: type".
-        ParameterManagerLib.AddDigimon(1, m_mdlName: "c001", m_infoId: "c001");
+        ParameterManagerLib.AddDigimon(1, m_mdlName: "m999", m_infoId: "m999");
 
         // Give our new digimon techs. THIS IS MANDATORY! The game will crash when getting the digimon otherwise.
         ParameterManagerLib.AddUsableSkill(1);
@@ -45,8 +45,8 @@ internal class UnitTests
 
         // The description of a digimon is searched using it's "m_infoId" + "_d", so we add a text in our
         // LanguageStringData that point to an id existing inside our LanguageData.
-        ParameterManagerLib.AddTextLanguage("c001_d", 2);
-        ParameterManagerLib.AddTextLanguage("c001_d", 2, SystemLanguage.Japanese);
+        ParameterManagerLib.AddTextLanguage("m999_d", 2);
+        ParameterManagerLib.AddTextLanguage("m999_d", 2, SystemLanguage.Japanese);
     }
 
     private static void TestAddManyDigimons()
@@ -209,15 +209,24 @@ internal class UnitTests
             Action battle_end = null;
             Action end_action = null;
 
+            Action action = async () =>
+            {
+                await Commands.FadeOut(Commands.DefaultFadeOutColor);
+                MainGameManager.GetNpc(0).SetDisp(true);
+                await Commands.MoveGameCamera(MainGameManager.UNITID.Npc00, new Vector3(0f, 1f, 10f), new Vector3(0f, 180f, 0f), 0);
+                await Commands.FadeIn();
+                DialogManager.CallbackEnded = true;
+            };
+
             battle_end = () =>
             {
                 List<Dialog> dialogs = new List<Dialog>()
                 {
-                    new Dialog() { title = Language.GetString("f029"), message = ">:(" },
+                    new Dialog() { title = Language.GetString("f029"), message = ">:(", callback = action, one_shot_callback = false },
                     new Dialog() { title = Language.GetString("f029"), message = "T-T" },
                 };
 
-                StartDialog(dialogs, null, true);
+                StartDialog(dialogs, () => { MainGameManager.GetNpc(0).Destroy(); }, true);
             };
 
             end_action = () =>

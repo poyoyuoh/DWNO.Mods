@@ -1,12 +1,16 @@
-﻿using Il2CppSystem.Reflection;
-using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Il2CppSystem.Reflection;
 using UnityEngine;
+using UnityStandardAssets.ImageEffects;
 
 namespace DWNOLib.Library;
 public class Commands
 {
-    public static Action BattleEndCB { get; set; } = null;
+    public static Color32 DefaultFadeOutColor { get; private set; } = new Color32(0, 0, 0, 255);
+
+    public static System.Action BattleEndCB { get; set; } = null;
+
+    public static bool m_isCameraMoved { get; set; } = false;
 
     public static void EnableCommonSelectWindowUI(bool enable, int window_type)
     {
@@ -21,7 +25,35 @@ public class Commands
         }
     }
 
-    public static void StartNPCBattle(uint[] array, Action _BattleEndCB = null)
+    public static void ShowMessage(string message, bool EnableInput = true, bool HideUI = true)
+    {
+        uCommonMessageWindow center = AppMainScript.Ref.MessageManager.GetCenter();
+        center.SetMessage(message);
+        center.SetButtonActive(uCommonMessageWindow.ButtonType.All, EnableInput);
+
+        if (HideUI)
+        {
+            AppInfo.Ref.gameProgress = AppInfo.GAMEPROG.Event;
+            CameraManager.Ref.SetCameraQuake(0f, 0f, Vector3.zero);
+            MainGameManager.Ref.enableFieldUI(false);
+            MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPlayer(), UnitCtrlBase.ReqAction.Event);
+            MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(0), UnitCtrlBase.ReqAction.Event);
+            MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(1), UnitCtrlBase.ReqAction.Event);
+
+            System.Action action = () =>
+            {
+                AppInfo.Ref.gameProgress = AppInfo.GAMEPROG.Field;
+                MainGameManager.Ref.enableFieldUI(true);
+                MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPlayer(), UnitCtrlBase.ReqAction.Field);
+                MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(0), UnitCtrlBase.ReqAction.Field);
+                MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(1), UnitCtrlBase.ReqAction.Field);
+            };
+
+            center.m_closeCallBack = action;
+        }
+    }
+
+    public static void StartNPCBattle(uint[] array, System.Action _BattleEndCB = null)
     {
         if (array.Length == 0)
         {
@@ -167,6 +199,110 @@ public class Commands
 
         TweenRotation.Begin(player.gameObject, delay, new Quaternion(0f, player_target_rotation.y, 0f, player_target_rotation.w));
         TweenRotation.Begin(npc.gameObject, delay, new Quaternion(0f, npc_target_rotation.y, 0f, npc_target_rotation.w));
-        await Task.Delay(TimeSpan.FromSeconds(delay));
+        await Task.Delay(System.TimeSpan.FromSeconds(delay));
+    }
+
+    public static async Task MoveGameCamera(MainGameManager.UNITID target_id, Vector3 pos, Vector3 rot, float time)
+    {
+        if (MainGameManager.Ref != null)
+        {
+            if (!m_isCameraMoved)
+            {
+                CameraManager.Ref.SetEnabled(false);
+                DepthOfField dof = CameraManager.Ref.GetComponent<DepthOfField>();
+                if (dof != null)
+                {
+                    dof.enabled = false;
+                }
+                BackgroundRender bgscript = MainGameManager.Ref.mainCamera.GetComponent<BackgroundRender>();
+                if (bgscript != null)
+                {
+                    bgscript.m_isDof = false;
+                }
+                m_isCameraMoved = true;
+            }
+            GameObject target_unit = null;
+            float ftime;
+            Vector3 position;
+            Vector3 rotation;
+            try
+            {
+                MainGameManager.UNITID id = target_id;
+                target_unit = MainGameManager.GetUnit(id);
+                ftime = time;
+                position = pos;
+                rotation = rot;
+                if (MainGameManager.Ref != null && MainGameManager.Ref.dayAndNightScript != null)
+                {
+                    position.y += MainGameManager.Ref.dayAndNightScript.offsetY;
+                }
+            }
+            catch
+            {
+                // TODO: Error Handling
+                return;
+            }
+            if (target_unit != null)
+            {
+                position = target_unit.transform.localRotation * position;
+                position += target_unit.transform.localPosition;
+                rotation += target_unit.transform.localRotation.eulerAngles;
+            }
+            float abstime = Mathf.Abs(ftime);
+            if (abstime > 0f)
+            {
+                TweenPosition.Begin(MainGameManager.Ref.mainCamera.gameObject, abstime, position);
+                TweenRotation.Begin(MainGameManager.Ref.mainCamera.gameObject, abstime, Quaternion.Euler(rotation));
+            }
+            else
+            {
+                MainGameManager.Ref.mainCamera.transform.localPosition = position;
+                MainGameManager.Ref.mainCamera.transform.localRotation = Quaternion.Euler(rotation);
+            }
+            if (ftime > 0f)
+            {
+                await Task.Delay(System.TimeSpan.FromSeconds(ftime));
+            }
+        }
+    }
+
+    public static async Task FadeOut(Color32 color, float time = 0.5f)
+    {
+        float ftime;
+        try
+        {
+            ftime = time;
+            ScreenEffectScript.Ref.ToColorBegin(color, Mathf.Abs(ftime));
+        }
+        catch
+        {
+            // TODO: Error Handling
+            return;
+        }
+        if (ftime > 0f)
+        {
+            //CloseWindow();
+            await Task.Delay(System.TimeSpan.FromSeconds(ftime));
+        }
+    }
+
+    public static async Task FadeIn(float time = 0.5f)
+    {
+        float ftime;
+        try
+        {
+            ftime = time;
+            ScreenEffectScript.Ref.FadeInBegin(Mathf.Abs(ftime));
+        }
+        catch
+        {
+            // TODO: Error Handling
+            return;
+        }
+        if (ftime > 0f)
+        {
+            //CloseWindow();
+            await Task.Delay(System.TimeSpan.FromSeconds(ftime));
+        }
     }
 }

@@ -9,8 +9,12 @@ internal class MainGameManagerPatch
     [HarmonyPostfix]
     private static void MainGameManager__LoadNpcPlacementData_Postfix(int _mapNo, int _areaNo, ref bool __result, MainGameManager __instance)
     {
+        bool __result2 = __result;
         __result = ParameterManagerLoader.LoadNPCPlacementDatas(false, _mapNo, _areaNo, __result, __instance);
-        __result = ParameterManagerLoader.LoadNPCEnemyDatas(false, _mapNo, _areaNo, __result, __instance);
+        if (__result)
+            ParameterManagerLoader.LoadNPCEnemyDatas(false, _mapNo, _areaNo, __result2, __instance);
+        else
+            __result = ParameterManagerLoader.LoadNPCEnemyDatas(false, _mapNo, _areaNo, __result2, __instance);
     }
 
     [HarmonyPatch(typeof(MainGameManager), "_LoadEnemyPlacementData")]

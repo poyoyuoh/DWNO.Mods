@@ -39,6 +39,8 @@ public class DialogManager
 
     private static bool KeyStillDown { get; set; } = false;
 
+    private static bool WasBattle { get; set; } = false;
+
     /// <summary>
     /// Start a new dialog using the custom DialogManager. Look at <c>UnitTests</c> for usage example.
     /// </summary>
@@ -65,6 +67,8 @@ public class DialogManager
     {
         int UpdateStep = 0;
         int DialogIndex = 0;
+        TitleText.text = "";
+        MessageText.text = "";
 
         while (true)
         {
@@ -137,9 +141,12 @@ public class DialogManager
             yield return null;
         }
         KeyStillDown = false;
+        CallbackEnded = true;
         EndCallback?.Invoke();
         EndCallback = null;
         EndRestoreUI = true;
+        WasBattle = false;
+        Commands.m_isCameraMoved = false;
         yield break;
     }
 
@@ -178,10 +185,10 @@ public class DialogManager
         if (Input.GetKeyDown(KeyCode.Mouse0))
             return true;
 
-        if (PadManager.IsInput(PadManager.BUTTON.bCross) && !PadManager.IsRepeat(PadManager.BUTTON.bCross))
+        if (PadManager.IsInput(PadManager.BUTTON.bCross))
             return true;
 
-        if (PadManager.IsInput(PadManager.BUTTON.bCircle) && !PadManager.IsRepeat(PadManager.BUTTON.bCircle))
+        if (PadManager.IsInput(PadManager.BUTTON.bCircle))
             return true;
 
         return false;
@@ -220,7 +227,12 @@ public class DialogManager
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(0), UnitCtrlBase.ReqAction.Event);
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(1), UnitCtrlBase.ReqAction.Event);
 
-        MainGameComponent.Ref.m_StepProc[0]._ChangeMain(MainGame.STEP.Event);
+        if (MainGameComponent.Ref.m_CurStep == MainGame.STEP.Battle)
+        {
+            MainGameComponent.Ref.m_CurStep = MainGame.STEP.Field;
+            MainGameComponent.Ref.m_NextStep = MainGame.STEP.Non;
+            WasBattle = true;
+        }
 
         MainGameManager.GetPlayerCtrl().ResetFootPrint();
         MainGameManager.GetPartnerCtrl(0).ResetFootPrint();
@@ -254,7 +266,12 @@ public class DialogManager
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(0), UnitCtrlBase.ReqAction.Field);
         MainGameComponent.Ref.m_StepProc[0]._ReqAction(MainGameManager.GetPartner(1), UnitCtrlBase.ReqAction.Field);
 
-        MainGameComponent.Ref.m_StepProc[0]._ChangeMain(MainGame.STEP.Field);
+        if (WasBattle)
+        {
+            MainGameComponent.Ref.m_CurStep = MainGame.STEP.Battle;
+            WasBattle = false;
+        }
+        MainGameComponent.Ref.m_NextStep = MainGame.STEP.Field;
 
         for (int i = 0; i < 15; i++)
         {
