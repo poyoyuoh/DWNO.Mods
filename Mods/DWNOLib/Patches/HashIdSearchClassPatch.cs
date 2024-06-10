@@ -39,6 +39,76 @@ internal class HashIdSearchClassPatch
             }
         }
 
+        if (data.Pointer == AppMainScript.parameterManager.itemDataBattle.Pointer)
+        {
+            ParameterItemDataBattle @params = ParameterManagerLib.ItemBattleDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
+        if (data.Pointer == AppMainScript.parameterManager.itemDataEvolution.Pointer)
+        {
+            ParameterItemDataEvolution @params = ParameterManagerLib.ItemEvolutionDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
+        if (data.Pointer == AppMainScript.parameterManager.itemDataOther.Pointer)
+        {
+            ParameterItemDataOther @params = ParameterManagerLib.ItemOtherDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
+        if (data.Pointer == AppMainScript.parameterManager.itemDataRecovery.Pointer)
+        {
+            ParameterItemDataRecovery @params = ParameterManagerLib.ItemRecoveryDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
+        if (data.Pointer == AppMainScript.parameterManager.itemDataFood.Pointer)
+        {
+            ParameterItemDataFood @params = ParameterManagerLib.ItemFoodDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
+        if (data.Pointer == AppMainScript.parameterManager.itemDataMaterial.Pointer)
+        {
+            ParameterItemDataMaterial @params = ParameterManagerLib.ItemMaterialDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
+        if (data.Pointer == AppMainScript.parameterManager.itemDataKeyItem.Pointer)
+        {
+            ParameterItemDataKeyItem @params = ParameterManagerLib.ItemKeyItemDataList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
         if (data.Pointer == ParameterManagerPointer.DigiviceSoloCameraPointer)
         {
             DigiviceSoloCameraData @params = ParameterManagerLib.SoloCameraDataList.Find(x => x.m_id == _id);

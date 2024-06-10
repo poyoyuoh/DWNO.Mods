@@ -16,6 +16,7 @@ internal class UnitTests
         else
         {
             TestAddDigimon();
+            TestAddItem();
             TestAddItemInShop();
             TestAddCommonSelectWindow();
             TestAddPlacementEnemy();
@@ -67,6 +68,16 @@ internal class UnitTests
         }
         ParameterManagerLib.AddLanguage((uint)(max + 1), "This is a custom digimon description.");
         ParameterManagerLib.AddTextLanguage("c001_d", (uint)(max + 1));
+    }
+
+    private static void TestAddItem()
+    {
+        ParameterManagerLib.AddLanguage(25, "Custom item");
+        ParameterManagerLib.AddLanguage(26, "Custom item description");
+
+        // The id of the item and the item kind must be the same.
+        ParameterManagerLib.AddItem(25);
+        ParameterManagerLib.AddItemRecovery(25, 26, 99999);
     }
 
     private static void TestAddItemInShop()

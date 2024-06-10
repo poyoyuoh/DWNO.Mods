@@ -20,6 +20,14 @@ public class ParameterManagerLoader
         LoadDigimonDatas(m_parameters);
         LoadUsableSkillDatas(m_parameters);
         LoadCommonSelectWindowDatas(m_parameters);
+        LoadItemDatas(m_parameters);
+        LoadItemBattleDatas(m_parameters);
+        LoadItemEvolutionDatas(m_parameters);
+        LoadItemOtherDatas(m_parameters);
+        LoadItemRecoveryDatas(m_parameters);
+        LoadItemFoodDatas(m_parameters);
+        LoadItemMaterialDatas(m_parameters);
+        LoadItemKeyItemDatas(m_parameters);
         LoadShopItemDatas(m_parameters);
 
         foreach (ParameterDigimonData data in ParameterManagerLib.CustomDigimonDatas)
@@ -222,6 +230,102 @@ public class ParameterManagerLoader
 
         Il2CppReferenceArray<Csvb<ParameterCommonSelectWindow>> RefArray = new Il2CppReferenceArray<Csvb<ParameterCommonSelectWindow>>(CommonSelectWindowCsvbList.ToArray());
         m_parameters.m_csvbCommonSelectWindowData = RefArray;
+    }
+
+    private static void LoadItemDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemDataList = m_parameters.m_csvbItemData.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemDatas.Count; i++)
+            ParameterManagerLib.ItemDataList.Add(ParameterManagerLib.CustomItemDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemData> RefArray = new Il2CppReferenceArray<ParameterItemData>(ParameterManagerLib.ItemDataList.ToArray());
+        Il2CppArrayBase<ParameterItemData> ArrayBase = Il2CppArrayBase<ParameterItemData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemData.m_params = ArrayBase;
+    }
+
+    private static void LoadItemBattleDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemBattleDataList = m_parameters.m_csvbItemDataBattle.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemBattleDatas.Count; i++)
+            ParameterManagerLib.ItemBattleDataList.Add(ParameterManagerLib.CustomItemBattleDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataBattle> RefArray = new Il2CppReferenceArray<ParameterItemDataBattle>(ParameterManagerLib.ItemBattleDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataBattle> ArrayBase = Il2CppArrayBase<ParameterItemDataBattle>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemDataBattle.m_params = ArrayBase;
+    }
+
+    private static void LoadItemEvolutionDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemEvolutionDataList = m_parameters.m_csvbItemDataEvolution.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemEvolutionDatas.Count; i++)
+            ParameterManagerLib.ItemEvolutionDataList.Add(ParameterManagerLib.CustomItemEvolutionDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataEvolution> RefArray = new Il2CppReferenceArray<ParameterItemDataEvolution>(ParameterManagerLib.ItemEvolutionDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataEvolution> ArrayBase = Il2CppArrayBase<ParameterItemDataEvolution>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemDataEvolution.m_params = ArrayBase;
+    }
+
+    private static void LoadItemOtherDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemOtherDataList = m_parameters.m_csvbItemDataOther.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemOtherDatas.Count; i++)
+            ParameterManagerLib.ItemOtherDataList.Add(ParameterManagerLib.CustomItemOtherDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataOther> RefArray = new Il2CppReferenceArray<ParameterItemDataOther>(ParameterManagerLib.ItemOtherDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataOther> ArrayBase = Il2CppArrayBase<ParameterItemDataOther>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemDataOther.m_params = ArrayBase;
+    }
+
+    private static void LoadItemRecoveryDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemRecoveryDataList = m_parameters.m_csvbItemDataRecovery.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemRecoveryDatas.Count; i++)
+            ParameterManagerLib.ItemRecoveryDataList.Add(ParameterManagerLib.CustomItemRecoveryDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataRecovery> RefArray = new Il2CppReferenceArray<ParameterItemDataRecovery>(ParameterManagerLib.ItemRecoveryDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataRecovery> ArrayBase = Il2CppArrayBase<ParameterItemDataRecovery>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemDataRecovery.m_params = ArrayBase;
+    }
+
+    private static void LoadItemFoodDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemFoodDataList = m_parameters.m_csvbItemDataFood.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemFoodDatas.Count; i++)
+            ParameterManagerLib.ItemFoodDataList.Add(ParameterManagerLib.CustomItemFoodDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataFood> RefArray = new Il2CppReferenceArray<ParameterItemDataFood>(ParameterManagerLib.ItemFoodDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataFood> ArrayBase = Il2CppArrayBase<ParameterItemDataFood>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemDataFood.m_params = ArrayBase;
+    }
+
+    private static void LoadItemMaterialDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemMaterialDataList = m_parameters.m_csvbMaterialData.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemMaterialDatas.Count; i++)
+            ParameterManagerLib.ItemMaterialDataList.Add(ParameterManagerLib.CustomItemMaterialDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataMaterial> RefArray = new Il2CppReferenceArray<ParameterItemDataMaterial>(ParameterManagerLib.ItemMaterialDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataMaterial> ArrayBase = Il2CppArrayBase<ParameterItemDataMaterial>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbMaterialData.m_params = ArrayBase;
+    }
+
+    private static void LoadItemKeyItemDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.ItemKeyItemDataList = m_parameters.m_csvbItemDataKeyItem.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomItemKeyItemDatas.Count; i++)
+            ParameterManagerLib.ItemKeyItemDataList.Add(ParameterManagerLib.CustomItemKeyItemDatas[i]);
+
+        Il2CppReferenceArray<ParameterItemDataKeyItem> RefArray = new Il2CppReferenceArray<ParameterItemDataKeyItem>(ParameterManagerLib.ItemKeyItemDataList.ToArray());
+        Il2CppArrayBase<ParameterItemDataKeyItem> ArrayBase = Il2CppArrayBase<ParameterItemDataKeyItem>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbItemDataKeyItem.m_params = ArrayBase;
     }
 
     private static void LoadShopItemDatas(ParameterManager m_parameters)

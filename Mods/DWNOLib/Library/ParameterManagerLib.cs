@@ -55,6 +55,22 @@ public class ParameterManagerLib
 
     public static Dictionary<int, Dictionary<int, int>> CustomCommonSelectWindowSort { get; set; } = new Dictionary<int, Dictionary<int, int>>();
 
+    public static List<ParameterItemData> CustomItemDatas { get; set; } = new List<ParameterItemData>();
+
+    public static List<ParameterItemDataBattle> CustomItemBattleDatas { get; set; } = new List<ParameterItemDataBattle>();
+    
+    public static List<ParameterItemDataEvolution> CustomItemEvolutionDatas { get; set; } = new List<ParameterItemDataEvolution>();
+    
+    public static List<ParameterItemDataOther> CustomItemOtherDatas { get; set; } = new List<ParameterItemDataOther>();
+    
+    public static List<ParameterItemDataRecovery> CustomItemRecoveryDatas { get; set; } = new List<ParameterItemDataRecovery>();
+    
+    public static List<ParameterItemDataFood> CustomItemFoodDatas { get; set; } = new List<ParameterItemDataFood>();
+    
+    public static List<ParameterItemDataMaterial> CustomItemMaterialDatas { get; set; } = new List<ParameterItemDataMaterial>();
+    
+    public static List<ParameterItemDataKeyItem> CustomItemKeyItemDatas { get; set; } = new List<ParameterItemDataKeyItem>();
+
     public static List<ParameterShopItemData> CustomShopItemDatas { get; set; } = new List<ParameterShopItemData>();
 
     public static Dictionary<string, Action> CustomScriptCommands { get; set; } = new Dictionary<string, Action>();
@@ -72,9 +88,23 @@ public class ParameterManagerLib
 
     public static List<ParameterNpcEnemyData> NPCEnemyDataList { get; set; } = new List<ParameterNpcEnemyData>();
 
-    public static List<ParameterShopItemData> ShopItemList { get; set; } = new List<ParameterShopItemData>();
-
     public static List<ParameterItemData> ItemDataList { get; set; } = new List<ParameterItemData>();
+
+    public static List<ParameterItemDataBattle> ItemBattleDataList { get; set; } = new List<ParameterItemDataBattle>();
+    
+    public static List<ParameterItemDataEvolution> ItemEvolutionDataList { get; set; } = new List<ParameterItemDataEvolution>();
+    
+    public static List<ParameterItemDataOther> ItemOtherDataList { get; set; } = new List<ParameterItemDataOther>();
+    
+    public static List<ParameterItemDataRecovery> ItemRecoveryDataList { get; set; } = new List<ParameterItemDataRecovery>();
+    
+    public static List<ParameterItemDataFood> ItemFoodDataList { get; set; } = new List<ParameterItemDataFood>();
+    
+    public static List<ParameterItemDataMaterial> ItemMaterialDataList { get; set; } = new List<ParameterItemDataMaterial>();
+    
+    public static List<ParameterItemDataKeyItem> ItemKeyItemDataList { get; set; } = new List<ParameterItemDataKeyItem>();
+
+    public static List<ParameterShopItemData> ShopItemList { get; set; } = new List<ParameterShopItemData>();
 
     public static void AddLanguage(uint id, string text, UnityEngine.SystemLanguage language = UnityEngine.SystemLanguage.English)
     {
@@ -398,6 +428,259 @@ public class ParameterManagerLib
             m_look_at_x = m_look_at_x,
             m_look_at_y = m_look_at_y,
             m_look_at_z = m_look_at_z
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemData entry. Aside from the id, all params are optional, and default to the Recovery Disk params.
+    /// </summary>
+    public static void AddItem(
+        uint m_id,
+        ParameterItemData.KindIndex m_kind = ParameterItemData.KindIndex.KindRecovery,
+        ParameterItemData.ClassIndex m_class = ParameterItemData.ClassIndex.ClassGeneralPurpose,
+        int m_sortID = 1000,
+        int m_price = 100,
+        int m_initialPossession = 0,
+        int m_itemSetPriority = -1,
+        string m_triggeredSound = "O_014",
+        string m_modelName = "disk",
+        int m_mdlVariation = 7,
+        string m_iconName = "IT_item284",
+        string m_effectName = "o_05_s",
+        float m_offset_px = 0.15f,
+        float m_offset_py = -0.13f,
+        float m_offset_pz = 0.01f,
+        float m_offset_rx = 8.5f,
+        float m_offset_ry = 0f,
+        float m_offset_rz = 120f
+    )
+    {
+        CustomItemDatas.Add(new ParameterItemData()
+        {
+            m_id = m_id,
+            m_kind = (int)m_kind,
+            m_class = (int)m_class,
+            m_sortID = m_sortID,
+            m_price = m_price,
+            m_initialPossession = m_initialPossession,
+            m_itemSetPriority = m_itemSetPriority,
+            m_triggeredSound = m_triggeredSound,
+            m_modelName = m_modelName,
+            m_mdlVariation = m_mdlVariation,
+            m_iconName = m_iconName,
+            m_effectName = m_effectName,
+            m_offset_px = m_offset_px,
+            m_offset_py = m_offset_py,
+            m_offset_pz = m_offset_pz,
+            m_offset_rx = m_offset_rx,
+            m_offset_ry = m_offset_ry,
+            m_offset_rz = m_offset_rz
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataBattle entry. Aside from the id and description code, all params are optional, and default to the Attack Plugin params.
+    /// </summary>
+    public static void AddItemBattle(
+        uint m_id,
+        uint m_description_code,
+        ParameterItemDataBattle.TargetIndex m_target = ParameterItemDataBattle.TargetIndex.TargetSimple,
+        ParameterItemDataBattle.RangeIndex m_range = ParameterItemDataBattle.RangeIndex.RangeSmall,
+        ParameterItemDataBattle.KindIndex m_effect_kind = ParameterItemDataBattle.KindIndex.KindAttackUp,
+        float m_effect_value = 1.2f,
+        int m_probability = 100
+    )
+    {
+        CustomItemBattleDatas.Add(new ParameterItemDataBattle()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code,
+            m_target = (int)m_target,
+            m_range = (int)m_range,
+            m_effect_kind = (int)m_effect_kind,
+            m_effect_value = m_effect_value,
+            m_probability = m_probability
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataEvolution entry.
+    /// </summary>
+    public static void AddItemEvolution(
+        uint m_id,
+        uint m_description_code,
+        uint m_digiimonID
+    )
+    {
+        CustomItemEvolutionDatas.Add(new ParameterItemDataEvolution()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code,
+            m_digiimonID = m_digiimonID
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataOther entry. Aside from the id and description_code, all params are optional.
+    ///  TODO: Implement a way to check for special action on those item (like potty,medicine,etc)
+    /// </summary>
+    public static void AddItemOther(
+        uint m_id,
+        uint m_description_code,
+        int m_hpMax = 0,
+        int m_mpMax = 0,
+        int m_forcefulness = 0,
+        int m_robustness = 0,
+        int m_cleverness = 0,
+        int m_rapidity = 0,
+        int m_lifeDecrease = 0,
+        ParameterItemDataOther.Licensing m_howToUse = ParameterItemDataOther.Licensing.Normal
+    )
+    {
+        CustomItemOtherDatas.Add(new ParameterItemDataOther()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code,
+            m_hpMax = m_hpMax,
+            m_mpMax = m_mpMax,
+            m_forcefulness = m_forcefulness,
+            m_robustness = m_robustness,
+            m_cleverness = m_cleverness,
+            m_rapidity = m_rapidity,
+            m_lifeDecrease = m_lifeDecrease,
+            m_howToUse = (int)m_howToUse
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataRecovery entry. Aside from the id and description_code, all params are optional, and default to the Recovery Disk params.
+    /// </summary>
+    public static void AddItemRecovery(
+        uint m_id,
+        uint m_description_code,
+        int m_hpRecoveryAmount = 500,
+        int m_mpRecoveryAmount = 0,
+        int m_range = 2
+    )
+    {
+        CustomItemRecoveryDatas.Add(new ParameterItemDataRecovery()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code,
+            m_hpRecoveryAmount = m_hpRecoveryAmount,
+            m_mpRecoveryAmount = m_mpRecoveryAmount,
+            m_range = m_range
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataFood entry. Aside from the id and description_code, all params are optional, and default to the Meat params.
+    /// </summary>
+    public static void AddItemFood(
+        uint m_id,
+        uint m_description_code,
+        ParameterItemDataFood.ItemFoodLineageIndex m_lineage = ParameterItemDataFood.ItemFoodLineageIndex.ItemFoodLineageMeat,
+        int m_bonds = 0,
+        int m_trust = 0,
+        int m_activityTime = 0,
+        int m_hpMax = 0,
+        int m_hp = 0,
+        int m_mpMax = 0,
+        int m_mp = 0,
+        int m_forcefulness = 0,
+        int m_robustness = 0,
+        int m_cleverness = 0,
+        int m_rapidity = 0,
+        int m_bodyWeight = 1,
+        int m_lifeTime = 0,
+        int m_education = 0,
+        int m_mood = 2,
+        int m_curse = 0,
+        int m_satiety = 40,
+        int m_genkiDegree = 0,
+        int m_trainingFailure = 0,
+        int m_trainingCorrectionHp = 0,
+        int m_trainingCorrectionMp = 0,
+        int m_trainingCorrectionForcefulness = 0,
+        int m_trainingCorrectionRobustness = 0,
+        int m_trainingCorrectionVleverness = 0,
+        int m_trainingCorrectionRapidity = 0,
+        int m_effectTime = 0,
+        int m_conditionClear = 0,
+        int m_sickRand = 0
+    )
+    {
+        CustomItemFoodDatas.Add(new ParameterItemDataFood()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code,
+            m_lineage = (int)m_lineage,
+            m_bonds = m_bonds,
+            m_trust = m_trust,
+            m_activityTime = m_activityTime,
+            m_hpMax = m_hpMax,
+            m_hp = m_hp,
+            m_mpMax = m_mpMax,
+            m_mp = m_mp,
+            m_forcefulness = m_forcefulness,
+            m_robustness = m_robustness,
+            m_cleverness = m_cleverness,
+            m_rapidity = m_rapidity,
+            m_bodyWeight = m_bodyWeight,
+            m_lifeTime = m_lifeTime,
+            m_education = m_education,
+            m_mood = m_mood,
+            m_curse = m_curse,
+            m_satiety = m_satiety,
+            m_genkiDegree = m_genkiDegree,
+            m_trainingFailure = m_trainingFailure,
+            m_trainingCorrectionHp = m_trainingCorrectionHp,
+            m_trainingCorrectionMp = m_trainingCorrectionMp,
+            m_trainingCorrectionForcefulness = m_trainingCorrectionForcefulness,
+            m_trainingCorrectionRobustness = m_trainingCorrectionRobustness,
+            m_trainingCorrectionVleverness = m_trainingCorrectionVleverness,
+            m_trainingCorrectionRapidity = m_trainingCorrectionRapidity,
+            m_effectTime = m_effectTime,
+            m_conditionClear = m_conditionClear,
+            m_sickRand = m_sickRand
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataMaterial entry. Make sure to create 2 of them, 1 for the individual material, and the other for the bag.
+    /// </summary>
+    public static void AddItemMaterial(
+        uint m_id,
+        uint m_description_code,
+        uint m_description_code_for_construction,
+        ParameterItemDataMaterial.MaterialKindIndex m_kind,
+        uint m_expansion_id,
+        uint m_convergent_id
+    )
+    {
+        CustomItemMaterialDatas.Add(new ParameterItemDataMaterial()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code,
+            m_description_code_for_construction = m_description_code_for_construction,
+            m_kind = (int)m_kind,
+            m_expansion_id = m_expansion_id,
+            m_convergent_id = m_convergent_id
+        });
+    }
+
+    /// <summary>
+    /// Add a new ItemDataKeyItem entry.
+    /// </summary>
+    public static void AddItemKeyItem(
+        uint m_id,
+        uint m_description_code
+    )
+    {
+        CustomItemKeyItemDatas.Add(new ParameterItemDataKeyItem()
+        {
+            m_id = m_id,
+            m_description_code = m_description_code
         });
     }
 
