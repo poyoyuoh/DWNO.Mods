@@ -29,6 +29,8 @@ public class ParameterManagerLoader
         LoadItemMaterialDatas(m_parameters);
         LoadItemKeyItemDatas(m_parameters);
         LoadShopItemDatas(m_parameters);
+        LoadJoglessDatas(m_parameters);
+        LoadJoglessGroupDatas(m_parameters);
 
         foreach (ParameterDigimonData data in ParameterManagerLib.CustomDigimonDatas)
         {
@@ -338,5 +340,41 @@ public class ParameterManagerLoader
         Il2CppReferenceArray<ParameterShopItemData> RefArray = new Il2CppReferenceArray<ParameterShopItemData>(ParameterManagerLib.ShopItemList.ToArray());
         Il2CppArrayBase<ParameterShopItemData> ArrayBase = Il2CppArrayBase<ParameterShopItemData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
         m_parameters.m_csvbShopItemData.m_params = ArrayBase;
+    }
+
+    private static void LoadJoglessDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.JoglessList = m_parameters.m_csvbJoglessData.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomJoglessDatas.Count; i++)
+        {
+            ParameterJoglessData @params = ParameterManagerLib.JoglessList.Find(x => x.m_id == ParameterManagerLib.CustomJoglessDatas[i].m_id);
+            if (@params != null)
+                ParameterManagerLib.JoglessList.Remove(@params);
+            
+            ParameterManagerLib.JoglessList.Add(ParameterManagerLib.CustomJoglessDatas[i]);
+        }  
+
+        Il2CppReferenceArray<ParameterJoglessData> RefArray = new Il2CppReferenceArray<ParameterJoglessData>(ParameterManagerLib.JoglessList.ToArray());
+        Il2CppArrayBase<ParameterJoglessData> ArrayBase = Il2CppArrayBase<ParameterJoglessData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbJoglessData.m_params = ArrayBase;
+    }
+
+    private static void LoadJoglessGroupDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.JoglessGroupList = m_parameters.m_csvbJoglessGroupData.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomJoglessGroupDatas.Count; i++)
+        {
+            ParameterJoglessGroupData @params = ParameterManagerLib.JoglessGroupList.Find(x => x.m_index == ParameterManagerLib.CustomJoglessGroupDatas[i].m_index);
+            if (@params != null)
+                ParameterManagerLib.JoglessGroupList.Remove(@params);
+
+            ParameterManagerLib.JoglessGroupList.Add(ParameterManagerLib.CustomJoglessGroupDatas[i]);
+        }
+
+        Il2CppReferenceArray<ParameterJoglessGroupData> RefArray = new Il2CppReferenceArray<ParameterJoglessGroupData>(ParameterManagerLib.JoglessGroupList.ToArray());
+        Il2CppArrayBase<ParameterJoglessGroupData> ArrayBase = Il2CppArrayBase<ParameterJoglessGroupData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbJoglessGroupData.m_params = ArrayBase;
     }
 }

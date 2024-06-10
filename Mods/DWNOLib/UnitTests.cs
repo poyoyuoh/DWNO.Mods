@@ -18,6 +18,7 @@ internal class UnitTests
             TestAddDigimon();
             TestAddItem();
             TestAddItemInShop();
+            TestAddJogless();
             TestAddCommonSelectWindow();
             TestAddPlacementEnemy();
             TestAddPlacementNPC();
@@ -84,6 +85,17 @@ internal class UnitTests
     {
         // Add a "Phantom Nectar" in Tentomon's new town shop.
         ParameterManagerLib.AddShopItem(0, 0x81d4dfd9, m_sortID: 5);
+    }
+
+    private static void TestAddJogless()
+    {
+        // Make a jogress with Examon and MetalGarurumon (Black) that become Omegamon Zwart.
+        // It is important that both digimon have a jogress into the wanted digimon.
+        ParameterManagerLib.AddJogless(0x5c3a290b, 0xf9a2ef1a, 44, m_flag_set: 0x37d005e3);
+        ParameterManagerLib.AddJoglessGroup(44, 0x5b3a279c);
+
+        ParameterManagerLib.AddJogless(0x5b3a279c, 0xf9a2ef1a, 45, m_flag_set: 0x37d005e3);
+        ParameterManagerLib.AddJoglessGroup(45, 0x5c3a290b);
     }
 
     private static void TestAddCommonSelectWindow()

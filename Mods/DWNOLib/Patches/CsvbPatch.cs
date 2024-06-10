@@ -11,6 +11,7 @@ internal class CsvbPatch
         if (__instance.Pointer == ParameterManagerPointer.PlacementEnemyPointer ||
             __instance.Pointer == ParameterManagerPointer.PlacementNPCPointer ||
             __instance.Pointer == ParameterManagerPointer.NPCEnemyPointer ||
+            __instance.Pointer == AppMainScript.Ref.m_parameters.joglessGroupData.Pointer ||
             __instance.Pointer == AppMainScript.Ref.m_parameters.m_csvbShopItemData.Pointer)
         {
             if (__instance.m_params != null)
@@ -30,6 +31,7 @@ internal class CsvbPatch
         if (__instance.Pointer == ParameterManagerPointer.PlacementEnemyPointer ||
             __instance.Pointer == ParameterManagerPointer.PlacementNPCPointer ||
             __instance.Pointer == ParameterManagerPointer.NPCEnemyPointer ||
+            __instance.Pointer == AppMainScript.Ref.m_parameters.joglessGroupData.Pointer ||
             __instance.Pointer == AppMainScript.Ref.m_parameters.m_csvbShopItemData.Pointer)
         {
             if (__instance.m_params != null)

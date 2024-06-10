@@ -109,6 +109,16 @@ internal class HashIdSearchClassPatch
             }
         }
 
+        if (data.Pointer == AppMainScript.parameterManager.joglessData.Pointer)
+        {
+            ParameterJoglessData @params = ParameterManagerLib.JoglessList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
         if (data.Pointer == ParameterManagerPointer.DigiviceSoloCameraPointer)
         {
             DigiviceSoloCameraData @params = ParameterManagerLib.SoloCameraDataList.Find(x => x.m_id == _id);

@@ -73,6 +73,10 @@ public class ParameterManagerLib
 
     public static List<ParameterShopItemData> CustomShopItemDatas { get; set; } = new List<ParameterShopItemData>();
 
+    public static List<ParameterJoglessData> CustomJoglessDatas { get; set; } = new List<ParameterJoglessData>();
+
+    public static List<ParameterJoglessGroupData> CustomJoglessGroupDatas { get; set; } = new List<ParameterJoglessGroupData>();
+
     public static Dictionary<string, Action> CustomScriptCommands { get; set; } = new Dictionary<string, Action>();
 
     // Parameters converted to list/dictionary for faster iteration
@@ -105,6 +109,10 @@ public class ParameterManagerLib
     public static List<ParameterItemDataKeyItem> ItemKeyItemDataList { get; set; } = new List<ParameterItemDataKeyItem>();
 
     public static List<ParameterShopItemData> ShopItemList { get; set; } = new List<ParameterShopItemData>();
+
+    public static List<ParameterJoglessData> JoglessList { get; set; } = new List<ParameterJoglessData>();
+
+    public static List<ParameterJoglessGroupData> JoglessGroupList { get; set; } = new List<ParameterJoglessGroupData>();
 
     public static void AddLanguage(uint id, string text, UnityEngine.SystemLanguage language = UnityEngine.SystemLanguage.English)
     {
@@ -920,6 +928,68 @@ public class ParameterManagerLib
             m_Exp = m_Exp,
             m_DropItemTblIdx = m_DropItemTblIdx,
             m_BattleBgm = m_BattleBgm
+        });
+    }
+
+    public static void AddJogless(
+        uint m_id,
+        uint m_jogless1,
+        int m_group1,
+        uint m_jogless2 = 0x831fc20e,
+        int m_group2 = 0,
+        uint m_flag_set = 0xef16bebc
+    )
+    {
+        CustomJoglessDatas.Add(new ParameterJoglessData()
+        {
+            m_id = m_id,
+            m_jogless1 = m_jogless1,
+            m_group1 = m_group1,
+            m_jogless2 = m_jogless2,
+            m_group2 = m_group2,
+            m_flag_set = m_flag_set
+        });
+    }
+
+    public static void AddJoglessGroup(
+        int m_index,
+        uint m_groupDigi1,
+        uint m_groupDigi2 = 0x831fc20e,
+        uint m_groupDigi3 = 0x831fc20e,
+        uint m_groupDigi4 = 0x831fc20e,
+        uint m_groupDigi5 = 0x831fc20e,
+        uint m_groupDigi6 = 0x831fc20e,
+        uint m_groupDigi7 = 0x831fc20e,
+        uint m_groupDigi8 = 0x831fc20e,
+        uint m_groupDigi9 = 0x831fc20e,
+        uint m_groupDigi10 = 0x831fc20e,
+        uint m_groupDigi11 = 0x831fc20e,
+        uint m_groupDigi12 = 0x831fc20e,
+        uint m_groupDigi13 = 0x831fc20e,
+        uint m_groupDigi14 = 0x831fc20e,
+        uint m_groupDigi15 = 0x831fc20e,
+        uint m_groupDigi16 = 0x831fc20e
+    )
+    {
+        CustomJoglessGroupDatas.Add(new ParameterJoglessGroupData()
+        {
+            m_index = m_index,
+            m_groupDigi1 = m_groupDigi1,
+            m_groupDigi2 = m_groupDigi2,
+            m_groupDigi3 = m_groupDigi3,
+            m_groupDigi4 = m_groupDigi4,
+            m_groupDigi5 = m_groupDigi5,
+            m_groupDigi6 = m_groupDigi6,
+            m_groupDigi7 = m_groupDigi7,
+            m_groupDigi8 = m_groupDigi8,
+            m_groupDigi9 = m_groupDigi9,
+            m_groupDigi10 = m_groupDigi10,
+            m_groupDigi11 = m_groupDigi11,
+            m_groupDigi12 = m_groupDigi12,
+            m_groupDigi13 = m_groupDigi13,
+            m_groupDigi14 = m_groupDigi14,
+            m_groupDigi15 = m_groupDigi15,
+            m_groupDigi16 = m_groupDigi16
         });
     }
 }
