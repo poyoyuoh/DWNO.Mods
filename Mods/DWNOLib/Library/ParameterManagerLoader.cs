@@ -18,6 +18,7 @@ public class ParameterManagerLoader
         }
 
         LoadDigimonDatas(m_parameters);
+        LoadAttackDatas(m_parameters);
         LoadUsableSkillDatas(m_parameters);
         LoadCommonSelectWindowDatas(m_parameters);
         LoadItemDatas(m_parameters);
@@ -37,9 +38,7 @@ public class ParameterManagerLoader
         {
             if (data.m_partnerFlag == 1)
                 m_parameters.m_DigimonID_LIST.Add(data.m_id);
-        }    
-
-        ParameterManagerLib.ItemDataList = m_parameters.itemData.m_params.ToList();
+        }
 
         is_loaded = true;
     }
@@ -54,6 +53,18 @@ public class ParameterManagerLoader
         Il2CppReferenceArray<ParameterDigimonData> RefArray = new Il2CppReferenceArray<ParameterDigimonData>(ParameterManagerLib.DigimonDataList.ToArray());
         Il2CppArrayBase<ParameterDigimonData> ArrayBase = Il2CppArrayBase<ParameterDigimonData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
         m_parameters.m_csvbDigimonData.m_params = ArrayBase;
+    }
+
+    private static void LoadAttackDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.AttackList = m_parameters.m_csvbAttackData.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomAttackDatas.Count; i++)
+            ParameterManagerLib.AttackList.Add(ParameterManagerLib.CustomAttackDatas[i]);
+
+        Il2CppReferenceArray<ParameterAttackData> RefArray = new Il2CppReferenceArray<ParameterAttackData>(ParameterManagerLib.AttackList.ToArray());
+        Il2CppArrayBase<ParameterAttackData> ArrayBase = Il2CppArrayBase<ParameterAttackData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbAttackData.m_params = ArrayBase;
     }
 
     private static void LoadUsableSkillDatas(ParameterManager m_parameters)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using static ParameterCommonSelectWindow;
 using static uDigiviceBG;
 
@@ -41,6 +42,8 @@ public class ParameterManagerLib
     // Custom datas
     public static List<ParameterDigimonData> CustomDigimonDatas { get; set; } = new List<ParameterDigimonData>();
 
+    public static List<ParameterAttackData> CustomAttackDatas { get; set; } = new List<ParameterAttackData>();
+    
     public static List<ParameterUsableSkillData> CustomUsableSkillDatas { get; set; } = new List<ParameterUsableSkillData>();
 
     public static List<DigiviceSoloCameraData> CustomSoloCameraDatas { get; set; } = new List<DigiviceSoloCameraData>();
@@ -83,6 +86,8 @@ public class ParameterManagerLib
 
     // Parameters converted to list/dictionary for faster iteration
     public static List<ParameterDigimonData> DigimonDataList { get; set; } = new List<ParameterDigimonData>();
+
+    public static List<ParameterAttackData> AttackList { get; set; } = new List<ParameterAttackData>();
 
     public static List<ParameterUsableSkillData> UsableSkillList { get; set; } = new List<ParameterUsableSkillData>();
 
@@ -1040,6 +1045,136 @@ public class ParameterManagerLib
             m_groupDigi14 = m_groupDigi14,
             m_groupDigi15 = m_groupDigi15,
             m_groupDigi16 = m_groupDigi16
+        });
+    }
+
+    /// <summary>
+    /// Add a new Attack entry. Aside from the id/typecode/description, all params are optional
+    /// and default to a special attack.
+    /// </summary>
+    public static void AddAttack(
+        uint m_id,
+        uint m_typeCode,
+        uint m_description_code,
+        string m_iconName = "kara",
+        int m_flagIndex = -1,
+        int m_nature = 1,
+        int m_attackPower = 1000,
+        int m_break = 100,
+        int m_consumptionMP = 0,
+        int m_consumptionOP = 150,
+        float m_forcefulnessUp = 0f,
+        int m_forcefulnessUpTime = 0,
+        float m_robustnessUp = 0f,
+        int m_robustnessUpTime = 0,
+        float m_clevernessUp = 0f,
+        int m_clevernessUpTime = 0,
+        float m_rapidityUp = 0f,
+        int m_rapidityUpTime = 0,
+        ParameterAttackData.AbnormalIndex m_abnormal = ParameterAttackData.AbnormalIndex.AbnormalIndex_None,
+        float m_abnormalProb = 0f,
+        float m_abnormalTime = 0f,
+        int m_type = 0, // Seems to be about buff, set to 6 if it's a buff, otherwise keep 0
+        ParameterAttackData.RangeIndex m_range = ParameterAttackData.RangeIndex.Range_S,
+        ParameterAttackData.AttackTypeIndex m_kind = ParameterAttackData.AttackTypeIndex.AttackType_Target,
+        int m_offsetNo0 = 0,
+        float m_size = 0f,
+        float m_distance = 0f,
+        float m_speed = 0f,
+        float m_rushSpeed = 0f,
+        float m_homing = 0f,
+        int m_motionNo = 6,
+        float m_motionSpeed = 0f,
+        float m_collisionStart = 0f,
+        float m_collisionTime = 0f,
+        string m_effect1 = "",
+        int m_offsetNo1 = 0,
+        float m_effectSize1 = 1f,
+        float m_effectStartTime1 = 0f,
+        string m_effect2 = "",
+        int m_offsetNo2 = 0,
+        float m_effectSize2 = 1f,
+        float m_effectStartTime2 = 0f,
+        string m_effect3 = "",
+        int m_offsetNo3 = 0,
+        float m_effectSize3 = 1f,
+        float m_effectStartTime3 = 0f,
+        string m_effect4 = "b_h_02",
+        int m_offsetNo4 = 4,
+        float m_effectSize4 = 1f,
+        int m_damageMotionNo = 4,
+        float m_knockBackPower = 2.5f,
+        float m_launchPower = 8.0f,
+        float m_hitSlow = 0.1f,
+        float m_hitSlowTime = 2.0f,
+        float m_quakePower = 0.25f,
+        float m_quakeTime = 1.5f,
+        int m_bulletNum = 0,
+        float m_bulletInterval = 0f,
+        float m_bulletBarake = 0f
+    )
+    {
+        CustomAttackDatas.Add(new ParameterAttackData()
+        {
+            m_id = m_id,
+            m_typeCode = m_typeCode,
+            m_description_code = m_description_code,
+            m_iconName = m_iconName,
+            m_flagIndex = m_flagIndex,
+            m_nature = m_nature,
+            m_attackPower = m_attackPower,
+            m_break = m_break,
+            m_consumptionMP = m_consumptionMP,
+            m_consumptionOP = m_consumptionOP,
+            m_forcefulnessUp = m_forcefulnessUp,
+            m_forcefulnessUpTime = m_forcefulnessUpTime,
+            m_robustnessUp = m_robustnessUp,
+            m_robustnessUpTime = m_robustnessUpTime,
+            m_clevernessUp = m_clevernessUp,
+            m_clevernessUpTime = m_clevernessUpTime,
+            m_rapidityUp = m_rapidityUp,
+            m_rapidityUpTime = m_rapidityUpTime,
+            m_abnormal = (int)m_abnormal,
+            m_abnormalProb = m_abnormalProb,
+            m_abnormalTime = m_abnormalTime,
+            m_type = m_type,
+            m_range = (int)m_range,
+            m_kind = (int)m_kind,
+            m_offsetNo0 = m_offsetNo0,
+            m_size = m_size,
+            m_distance = m_distance,
+            m_speed = m_speed,
+            m_rushSpeed = m_rushSpeed,
+            m_homing = m_homing,
+            m_motionNo = m_motionNo,
+            m_motionSpeed = m_motionSpeed,
+            m_collisionStart = m_collisionStart,
+            m_collisionTime = m_collisionTime,
+            m_effect1 = m_effect1,
+            m_offsetNo1 = m_offsetNo1,
+            m_effectSize1 = m_effectSize1,
+            m_effectStartTime1 = m_effectStartTime1,
+            m_effect2 = m_effect2,
+            m_offsetNo2 = m_offsetNo2,
+            m_effectSize2 = m_effectSize2,
+            m_effectStartTime2 = m_effectStartTime2,
+            m_effect3 = m_effect3,
+            m_offsetNo3 = m_offsetNo3,
+            m_effectSize3 = m_effectSize3,
+            m_effectStartTime3 = m_effectStartTime3,
+            m_effect4 = m_effect4,
+            m_offsetNo4 = m_offsetNo4,
+            m_effectSize4 = m_effectSize4,
+            m_damageMotionNo = m_damageMotionNo,
+            m_knockBackPower = m_knockBackPower,
+            m_launchPower = m_launchPower,
+            m_hitSlow = m_hitSlow,
+            m_hitSlowTime = m_hitSlowTime,
+            m_quakePower = m_quakePower,
+            m_quakeTime = m_quakeTime,
+            m_bulletNum = m_bulletNum,
+            m_bulletInterval = m_bulletInterval,
+            m_bulletBarake = m_bulletBarake
         });
     }
 }

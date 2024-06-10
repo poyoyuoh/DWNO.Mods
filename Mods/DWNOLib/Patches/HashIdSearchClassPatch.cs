@@ -19,6 +19,16 @@ internal class HashIdSearchClassPatch
             }
         }
 
+        if (data.Pointer == AppMainScript.parameterManager.attackData.Pointer)
+        {
+            ParameterAttackData @params = ParameterManagerLib.AttackList.Find(x => x.m_id == _id);
+            if (@params != null)
+            {
+                __result = @params;
+                return false;
+            }
+        }
+
         if (data.Pointer == AppMainScript.parameterManager.usableSkillData.Pointer)
         {
             ParameterUsableSkillData @params = ParameterManagerLib.UsableSkillList.Find(x => x.m_id == _id);
