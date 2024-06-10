@@ -174,12 +174,13 @@ internal class UnitTests
 
     private static void TestAddPlacementEnemy()
     {
+        // Add a drop item which drop 3 mandrakes with 100% of happening
+        ParameterManagerLib.AddDropItem(144, 0x86d4e78c, 3, 100);
+
         // This test on a map with no csvb file existing for it. (Nigh Plains - Ruins Lake)
-        ParameterManagerLib.AddPlacementEnemy(new System.Numerics.Vector2(2, 7), m_level: 98, m_startX: 103, m_startY: 22, m_startZ: 88);
+        ParameterManagerLib.AddPlacementEnemy(new System.Numerics.Vector2(2, 7), m_level: 98, m_itemDropNo: 144, m_startX: 103, m_startY: 22, m_startZ: 88);
 
         // This test on a map with a csvb file existing for it. (Nigh Plains - Vast Plateau)
-        // TODO: Fix error on using a unitid which is already used.
-        // Replace the original one with the new one instead ?
         ParameterManagerLib.AddPlacementEnemy(new System.Numerics.Vector2(2, 1), m_unitNo: MainGameManager.UNITID.Enemy10, m_startX: 86, m_startY: 21, m_startZ: 225);
     }
 

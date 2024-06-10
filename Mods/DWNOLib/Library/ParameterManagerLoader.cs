@@ -28,6 +28,7 @@ public class ParameterManagerLoader
         LoadItemFoodDatas(m_parameters);
         LoadItemMaterialDatas(m_parameters);
         LoadItemKeyItemDatas(m_parameters);
+        LoadDropItemDatas(m_parameters);
         LoadShopItemDatas(m_parameters);
         LoadJoglessDatas(m_parameters);
         LoadJoglessGroupDatas(m_parameters);
@@ -328,6 +329,24 @@ public class ParameterManagerLoader
         Il2CppReferenceArray<ParameterItemDataKeyItem> RefArray = new Il2CppReferenceArray<ParameterItemDataKeyItem>(ParameterManagerLib.ItemKeyItemDataList.ToArray());
         Il2CppArrayBase<ParameterItemDataKeyItem> ArrayBase = Il2CppArrayBase<ParameterItemDataKeyItem>.WrapNativeGenericArrayPointer(RefArray.Pointer);
         m_parameters.m_csvbItemDataKeyItem.m_params = ArrayBase;
+    }
+
+    private static void LoadDropItemDatas(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.DropItemList = m_parameters.m_csvbDropItemData.m_params.ToList();
+
+        for (int i = 0; i < ParameterManagerLib.CustomDropItemDatas.Count; i++)
+        {
+            ParameterDropItem @params = ParameterManagerLib.DropItemList.Find(x => x.m_index == ParameterManagerLib.CustomDropItemDatas[i].m_index);
+            if (@params != null)
+                ParameterManagerLib.DropItemList.Remove(@params);
+
+            ParameterManagerLib.DropItemList.Add(ParameterManagerLib.CustomDropItemDatas[i]);
+        }
+
+        Il2CppReferenceArray<ParameterDropItem> RefArray = new Il2CppReferenceArray<ParameterDropItem>(ParameterManagerLib.DropItemList.ToArray());
+        Il2CppArrayBase<ParameterDropItem> ArrayBase = Il2CppArrayBase<ParameterDropItem>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbDropItemData.m_params = ArrayBase;
     }
 
     private static void LoadShopItemDatas(ParameterManager m_parameters)

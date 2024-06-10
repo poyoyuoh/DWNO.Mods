@@ -71,6 +71,8 @@ public class ParameterManagerLib
     
     public static List<ParameterItemDataKeyItem> CustomItemKeyItemDatas { get; set; } = new List<ParameterItemDataKeyItem>();
 
+    public static List<ParameterDropItem> CustomDropItemDatas { get; set; } = new List<ParameterDropItem>();
+
     public static List<ParameterShopItemData> CustomShopItemDatas { get; set; } = new List<ParameterShopItemData>();
 
     public static List<ParameterJoglessData> CustomJoglessDatas { get; set; } = new List<ParameterJoglessData>();
@@ -109,6 +111,8 @@ public class ParameterManagerLib
     public static List<ParameterItemDataKeyItem> ItemKeyItemDataList { get; set; } = new List<ParameterItemDataKeyItem>();
 
     public static List<ParameterShopItemData> ShopItemList { get; set; } = new List<ParameterShopItemData>();
+
+    public static List<ParameterDropItem> DropItemList { get; set; } = new List<ParameterDropItem>();
 
     public static List<ParameterJoglessData> JoglessList { get; set; } = new List<ParameterJoglessData>();
 
@@ -928,6 +932,52 @@ public class ParameterManagerLib
             m_Exp = m_Exp,
             m_DropItemTblIdx = m_DropItemTblIdx,
             m_BattleBgm = m_BattleBgm
+        });
+    }
+
+    /// <summary>
+    /// Add a new DropItem entry. Aside from the id and the first item, everything is set to a NG item and 0 probability.
+    /// The last default index is 143, so use a bigger number to add new DropItem. Using a small number will replace existing one.
+    /// The game doesn't support showing how much item dropped, so if you want to drop the same item multiple time, it's recommended
+    /// to put the same item multiple times and setting the num to 1.
+    /// </summary>
+    public static void AddDropItem(
+        int m_index,
+        uint m_item1Id,
+        int m_item1Num,
+        int m_item1Probability,
+        uint m_item2Id = 0x151b304c,
+        int m_item2Num = 0,
+        int m_item2Probability = 0,
+        uint m_item3Id = 0x151b304c,
+        int m_item3Num = 0,
+        int m_item3Probability = 0,
+        uint m_item4Id = 0x151b304c,
+        int m_item4Num = 0,
+        int m_item4Probability = 0,
+        uint m_item5Id = 0x151b304c,
+        int m_item5Num = 0,
+        int m_item5Probability = 0
+    )
+    {
+        CustomDropItemDatas.Add(new ParameterDropItem()
+        {
+            m_index = m_index,
+            m_item1Id = m_item1Id,
+            m_item1Num = m_item1Num,
+            m_item1Probability = m_item1Probability,
+            m_item2Id = m_item2Id,
+            m_item2Num = m_item2Num,
+            m_item2Probability = m_item2Probability,
+            m_item3Id = m_item3Id,
+            m_item3Num = m_item3Num,
+            m_item3Probability = m_item3Probability,
+            m_item4Id = m_item4Id,
+            m_item4Num = m_item4Num,
+            m_item4Probability = m_item4Probability,
+            m_item5Id = m_item5Id,
+            m_item5Num = m_item5Num,
+            m_item5Probability = m_item5Probability
         });
     }
 
