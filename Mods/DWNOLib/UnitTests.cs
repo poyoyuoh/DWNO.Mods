@@ -194,14 +194,12 @@ internal class UnitTests
         // Callback given to the "m_CmdBlock" param, that will be executed when talking to the npc.
         ParameterManagerLib.CustomScriptCommands["LIB_DEBUG_TALKNPC"] = () =>
         {
-            // Example of an "async" callback, this mean we wait for something to finish before we continue the dialog.
-            // In this scenario we wait for the player/npc to rotate toward each other before starting the dialog.
-            // Since we set the "one_shot_callback" to false, IT IS MANDATORY to
-            // manually set "CallbackEnded" back to true otherwise the game will be stuck in a loop.
-            Action action = async () =>
+            // Example of a callback using commands that need waiting. The DialogManager will wait for
+            // all it's commands to be finished before proceeding.
+            // Adding ".Wait()" make sure the action is finished before continuing.
+            Action action = () =>
             {
-                await Commands.RotatePlayerAndNPC(MainGameManager.UNITID.Npc04);
-                CallbackEnded = true;
+                Commands.RotatePlayerAndNPC(MainGameManager.UNITID.Npc04).Wait();
             };
 
             // title/message doesn't require to use the game Language, you can give it text directly.
@@ -212,7 +210,7 @@ internal class UnitTests
             // in the function.
             List<Dialog> dialogs = new List<Dialog>()
             {
-                new Dialog() { title = Language.GetString("c001"), message = Language.GetString(10), callback = action, one_shot_callback = false},
+                new Dialog() { title = Language.GetString("c001"), message = Language.GetString(10), callback = action },
                 new Dialog() { title = Language.GetString("c001"), message = Language.GetString(11) },
             };
 
@@ -233,20 +231,19 @@ internal class UnitTests
             Action battle_end = null;
             Action end_action = null;
 
-            Action action = async () =>
+            Action action = () =>
             {
-                await Commands.FadeOut(Commands.DefaultFadeOutColor);
+                Commands.FadeOut(Commands.DefaultFadeOutColor).Wait();
                 MainGameManager.GetNpc(0).SetDisp(true);
-                await Commands.MoveGameCamera(MainGameManager.UNITID.Npc00, new Vector3(0f, 1f, 10f), new Vector3(0f, 180f, 0f), 0);
-                await Commands.FadeIn();
-                DialogManager.CallbackEnded = true;
+                Commands.MoveGameCamera(MainGameManager.UNITID.Npc00, new Vector3(0f, 1f, 10f), new Vector3(0f, 180f, 0f), 0).Wait();
+                Commands.FadeIn().Wait();
             };
 
             battle_end = () =>
             {
                 List<Dialog> dialogs = new List<Dialog>()
                 {
-                    new Dialog() { title = Language.GetString("f029"), message = ">:(", callback = action, one_shot_callback = false },
+                    new Dialog() { title = Language.GetString("f029"), message = ">:(", callback = action },
                     new Dialog() { title = Language.GetString("f029"), message = "T-T" },
                 };
 

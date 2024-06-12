@@ -14,7 +14,6 @@ public class DialogManager
         public string title = "";
         public string message = "";
         public Action callback = null;
-        public bool one_shot_callback = true;
     }
 
     private static GameObject DialogObject { get; set; } = null;
@@ -35,9 +34,9 @@ public class DialogManager
 
     private static bool EndRestoreUI { get; set; } = false;
 
-    public static bool CallbackEnded { get; set; } = true;
-
     private static bool WasBattle { get; set; } = false;
+
+    private static Task CurrentTask { get; set; } = null;
 
     /// <summary>
     /// Start a new dialog using the custom DialogManager. Look at <c>UnitTests</c> for usage example.
@@ -73,14 +72,13 @@ public class DialogManager
                 case 0:
                     if (DialogBuffer[DialogIndex].callback != null)
                     {
-                        if (DialogBuffer[DialogIndex].one_shot_callback == false)
-                            CallbackEnded = false;
-                        DialogBuffer[DialogIndex].callback.Invoke();
+                        CurrentTask = new Task(DialogBuffer[DialogIndex].callback);
+                        CurrentTask.Start();
                     }
                     UpdateStep++;
                     break;
                 case 1:
-                    if (CallbackEnded)
+                    if (CurrentTask == null || CurrentTask.IsCompleted)
                     {
                         DialogObject.SetActive(true);
                         UpdateStep++;
@@ -93,7 +91,7 @@ public class DialogManager
                     else
                         TitleWindow.SetActive(true);
                     MessageText.text = DialogBuffer[DialogIndex].message;
-                    if (CallbackEnded)
+                    if (CurrentTask == null || CurrentTask.IsCompleted)
                     {
                         Prompt.gameObject.SetActive(true);
                         
@@ -107,15 +105,13 @@ public class DialogManager
                             }
                             if (DialogBuffer[DialogIndex].callback != null)
                             {
-                                if (DialogBuffer[DialogIndex].one_shot_callback == false)
-                                    CallbackEnded = false;
-                                DialogBuffer[DialogIndex].callback.Invoke();
+                                CurrentTask = new Task(DialogBuffer[DialogIndex].callback);
+                                CurrentTask.Start();
                             }
                         }
                     }
                     else
                     {
-                        CheckPressedKey();
                         Prompt.gameObject.SetActive(false);
                     }
                     break;
@@ -130,11 +126,11 @@ public class DialogManager
                 break;
             yield return null;
         }
-        CallbackEnded = true;
         EndCallback?.Invoke();
         EndCallback = null;
         EndRestoreUI = true;
         WasBattle = false;
+        CurrentTask = null;
         Commands.m_isCameraMoved = false;
         yield break;
     }
@@ -242,22 +238,21 @@ public class DialogManager
 
     private static void TestDialog()
     {
-        Action action = async () =>
+        Action action = () =>
         {
             for (int i = 0; i < 120; i++)
             {
                 MainGameManager.GetPlayer().transform.GetChild(0).Rotate(new Vector3(720f / 60, 0f, 0f));
-                await Task.Delay(TimeSpan.FromSeconds(1f / 60));
+                Task.Delay(TimeSpan.FromSeconds(1f / 60)).Wait();
             }
-            CallbackEnded = true;
         };
 
         List<Dialog> dialogs = new List<Dialog>()
         {
-            new Dialog() { title = "Poyo", message = "Hello world!"},
-            new Dialog() { title = "Poyo's mind", message = "Ho nice this dialog is working!\nThat's very cool!"},
-            new Dialog() { title = "Poyo's mind", message = "Time to SPIN", callback = action, one_shot_callback = false},
-            new Dialog() { title = "Poyo", message = "HEEEEEELP"},
+            new Dialog() { title = "Poyo", message = "Hello world!" },
+            new Dialog() { title = "Poyo's mind", message = "Ho nice this dialog is working!\nThat's very cool!" },
+            new Dialog() { title = "Poyo's mind", message = "Time to SPIN", callback = action },
+            new Dialog() { title = "Poyo", message = "HEEEEEELP" },
         };
 
         StartDialog(dialogs);
