@@ -89,6 +89,7 @@ public class DWNOLib : BasePlugin
         Harmony.CreateAndPatchAll(typeof(uSavePanelPatch), harmony.Id);
 
         // Extras
+        Harmony.CreateAndPatchAll(typeof(CriBindDir), harmony.Id);
         Harmony.CreateAndPatchAll(typeof(MainTitleLibVersionText), harmony.Id);
     }
 
