@@ -37,8 +37,6 @@ public class DialogManager
 
     public static bool CallbackEnded { get; set; } = true;
 
-    private static bool KeyStillDown { get; set; } = false;
-
     private static bool WasBattle { get; set; } = false;
 
     /// <summary>
@@ -57,8 +55,6 @@ public class DialogManager
 
         EndCallback = endCallback;
         EndRestoreUI = endRestoreUI;
-
-        KeyStillDown = CheckPressedKey();
 
         AppMainScript.Ref.StartCoroutineManaged2(DialogUpdate().WrapToIl2Cpp());
     }
@@ -89,11 +85,6 @@ public class DialogManager
                         DialogObject.SetActive(true);
                         UpdateStep++;
                     }
-                    else
-                    {
-                        if (CheckPressedKey())
-                            KeyStillDown = true;
-                    }
                     break;
                 case 2:
                     TitleText.text = DialogBuffer[DialogIndex].title;
@@ -108,7 +99,6 @@ public class DialogManager
                         
                         if (CheckPressedKey())
                         {
-                            KeyStillDown = true;
                             DialogIndex++;
                             if (DialogIndex >= DialogBuffer.Count)
                             {
@@ -140,7 +130,6 @@ public class DialogManager
                 break;
             yield return null;
         }
-        KeyStillDown = false;
         CallbackEnded = true;
         EndCallback?.Invoke();
         EndCallback = null;
@@ -152,43 +141,10 @@ public class DialogManager
 
     private static bool CheckPressedKey()
     {
-        if (Input.GetKeyUp(KeyCode.Space))
-            KeyStillDown = false;
-
-        if (Input.GetKeyUp(KeyCode.Return))
-            KeyStillDown = false;
-
-        if (Input.GetKeyUp(KeyCode.KeypadEnter))
-            KeyStillDown = false;
-
-        if (Input.GetKeyUp(KeyCode.Mouse0))
-            KeyStillDown = false;
-
-        if (PadManager.IsRelease(PadManager.BUTTON.bCross))
-            KeyStillDown = false;
-
-        if (PadManager.IsRelease(PadManager.BUTTON.bCircle))
-            KeyStillDown = false;
-
-        if (KeyStillDown)
-            return false;
-
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (PadManager.IsTrigger(PadManager.BUTTON.bCross))
             return true;
 
-        if (Input.GetKeyDown(KeyCode.Return))
-            return true;
-
-        if (Input.GetKeyDown(KeyCode.KeypadEnter))
-            return true;
-
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-            return true;
-
-        if (PadManager.IsInput(PadManager.BUTTON.bCross))
-            return true;
-
-        if (PadManager.IsInput(PadManager.BUTTON.bCircle))
+        if (PadManager.IsTrigger(PadManager.BUTTON.bCircle))
             return true;
 
         return false;
