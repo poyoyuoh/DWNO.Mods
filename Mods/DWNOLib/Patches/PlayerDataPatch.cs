@@ -47,4 +47,20 @@ internal class PlayerDataPatch
     {
         StorageDataLib.StorageDataLimits.RestoreLimits();
     }
+
+    [HarmonyPatch(typeof(PlayerData), "AddLevel")]
+    [HarmonyPrefix]
+    private static bool PlayerData_AddLevel_Prefix(int add, PlayerData __instance)
+    {
+        __instance.m_level += add;
+        return false;
+    }
+
+    [HarmonyPatch(typeof(PlayerData), "AddSkillPoint")]
+    [HarmonyPrefix]
+    private static bool PlayerData_AddSkillPoint_Prefix(int addPoint, PlayerData __instance)
+    {
+        __instance.m_skillPoint += addPoint;
+        return false;
+    }
 }

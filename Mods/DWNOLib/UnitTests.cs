@@ -22,6 +22,7 @@ internal class UnitTests
             TestAddCommonSelectWindow();
             TestAddPlacementEnemy();
             TestAddPlacementNPC();
+            TestAddTamerExpTable();
         }
     }
 
@@ -285,5 +286,12 @@ internal class UnitTests
 
         ParameterManagerLib.AddPlacementNPC(new System.Numerics.Vector2(99, 1), m_MdlName: "f039", m_Name: 7, m_UintId: MainGameManager.UNITID.Enemy17, m_ChkInput: 0, m_CmdBlock: "", m_Px: -0.6714f, m_Py: -0.2324f, m_Pz: 34.6682f, m_Ry: 180, m_NpcEnemyParamId: 12);
         ParameterManagerLib.AddNPCEnemy(new System.Numerics.Vector2(99, 1), m_ParamId: 12, m_Level: 1, m_BattleBgm: 4);
+    }
+
+    private static void TestAddTamerExpTable()
+    {
+        // Meant to be tested with a save already at level 50.
+        // instantly level up to 54 on loading save file. Missing levels are automatically filled in with empty requirement.
+        ParameterManagerLib.AddTamerExpTable(55, 100, 100);
     }
 }

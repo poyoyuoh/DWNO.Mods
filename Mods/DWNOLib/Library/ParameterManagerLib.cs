@@ -82,6 +82,8 @@ public class ParameterManagerLib
 
     public static List<ParameterJoglessGroupData> CustomJoglessGroupDatas { get; set; } = new List<ParameterJoglessGroupData>();
 
+    public static Dictionary<int, ParameterTamerExpTable> CustomTamerExpTableDatas { get; set; } = new Dictionary<int, ParameterTamerExpTable>();
+
     public static Dictionary<string, Action> CustomScriptCommands { get; set; } = new Dictionary<string, Action>();
 
     // Parameters converted to list/dictionary for faster iteration
@@ -122,6 +124,8 @@ public class ParameterManagerLib
     public static List<ParameterJoglessData> JoglessList { get; set; } = new List<ParameterJoglessData>();
 
     public static List<ParameterJoglessGroupData> JoglessGroupList { get; set; } = new List<ParameterJoglessGroupData>();
+
+    public static List<ParameterTamerExpTable> TamerExpTableList { get; set; } = new List<ParameterTamerExpTable>();
 
     public static void AddLanguage(uint id, string text, UnityEngine.SystemLanguage language = UnityEngine.SystemLanguage.English)
     {
@@ -1175,6 +1179,22 @@ public class ParameterManagerLib
             m_bulletNum = m_bulletNum,
             m_bulletInterval = m_bulletInterval,
             m_bulletBarake = m_bulletBarake
+        });
+    }
+
+    /// <summary>
+    /// Add a new TamerExpTable entry.
+    /// </summary>
+    public static void AddTamerExpTable(
+        int level,
+        int m_nextNeedExp,
+        int m_point
+    )
+    {
+        CustomTamerExpTableDatas.Add(level, new ParameterTamerExpTable()
+        {
+            m_nextNeedExp = m_nextNeedExp,
+            m_point = m_point
         });
     }
 }

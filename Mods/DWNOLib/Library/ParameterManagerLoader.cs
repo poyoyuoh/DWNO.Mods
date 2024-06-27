@@ -33,6 +33,7 @@ public class ParameterManagerLoader
         LoadShopItemDatas(m_parameters);
         LoadJoglessDatas(m_parameters);
         LoadJoglessGroupDatas(m_parameters);
+        LoadTamerExpTable(m_parameters);
 
         foreach (ParameterDigimonData data in ParameterManagerLib.CustomDigimonDatas)
         {
@@ -406,5 +407,34 @@ public class ParameterManagerLoader
         Il2CppReferenceArray<ParameterJoglessGroupData> RefArray = new Il2CppReferenceArray<ParameterJoglessGroupData>(ParameterManagerLib.JoglessGroupList.ToArray());
         Il2CppArrayBase<ParameterJoglessGroupData> ArrayBase = Il2CppArrayBase<ParameterJoglessGroupData>.WrapNativeGenericArrayPointer(RefArray.Pointer);
         m_parameters.m_csvbJoglessGroupData.m_params = ArrayBase;
+    }
+
+    private static void LoadTamerExpTable(ParameterManager m_parameters)
+    {
+        ParameterManagerLib.TamerExpTableList = m_parameters.m_csvbTamerExpTableData.m_params.ToList();
+
+        if (ParameterManagerLib.CustomTamerExpTableDatas.Count > 0)
+        {
+            int max = ParameterManagerLib.CustomTamerExpTableDatas.Keys.Max();
+
+            while (ParameterManagerLib.TamerExpTableList.Count <= max)
+                ParameterManagerLib.TamerExpTableList.Add(new ParameterTamerExpTable());
+        }
+
+        foreach (int key in ParameterManagerLib.CustomTamerExpTableDatas.Keys)
+            ParameterManagerLib.TamerExpTableList[key] = ParameterManagerLib.CustomTamerExpTableDatas[key];
+
+        // Recalculate all total exp
+        for (int i = 0; i < ParameterManagerLib.TamerExpTableList.Count; i++)
+        {
+            if (i == 0)
+                continue;
+
+            ParameterManagerLib.TamerExpTableList[i].m_totalExp = ParameterManagerLib.TamerExpTableList[i - 1].m_totalExp + ParameterManagerLib.TamerExpTableList[i].m_nextNeedExp;
+        }
+
+        Il2CppReferenceArray<ParameterTamerExpTable> RefArray = new Il2CppReferenceArray<ParameterTamerExpTable>(ParameterManagerLib.TamerExpTableList.ToArray());
+        Il2CppArrayBase<ParameterTamerExpTable> ArrayBase = Il2CppArrayBase<ParameterTamerExpTable>.WrapNativeGenericArrayPointer(RefArray.Pointer);
+        m_parameters.m_csvbTamerExpTableData.m_params = ArrayBase;
     }
 }
