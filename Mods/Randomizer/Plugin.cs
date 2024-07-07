@@ -129,7 +129,7 @@ public class Plugin : BasePlugin
     private static void uTitlePanel_enablePanel_Postfix(uTitlePanel __instance)
     {
         __instance.m_VersionText.alignment = TextAnchor.LowerRight;
-        __instance.m_VersionText.text = $"Version 1.0.0\nRandomizer seed: {Seed.Value}\nPress F5 to generate a new seed!";
+        __instance.m_VersionText.text = $"Version " + PluginVersion + "\nRandomizer seed: {Seed.Value}\nPress F5 to generate a new seed!";
     }
 
     [HarmonyPatch(typeof(uTitlePanel), "Update")]
@@ -150,7 +150,7 @@ public class Plugin : BasePlugin
             config.Save();
 
         if (force_new_seed && __instance != null)
-            __instance.m_VersionText.text = $"Version 1.0.0\nRandomizer seed: {Seed.Value}\nPress F5 to generate a new seed!";
+            __instance.m_VersionText.text = $"Version " + PluginVersion + "\nRandomizer seed: {Seed.Value}\nPress F5 to generate a new seed!";
 
         DigimonDatas.Clear();
         ItemDatas.Clear();
