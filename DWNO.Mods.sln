@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlockAllEvoPaths", "Mods\Bl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeamlessBattle", "Mods\SeamlessBattle\SeamlessBattle.csproj", "{79BBC1DA-4971-4596-B306-A199E9C03784}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlwaysSpawnEnemies", "Mods\AlwaysSpawnEnemies\AlwaysSpawnEnemies.csproj", "{06763078-697D-43D7-A230-1DE25090ED78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{79BBC1DA-4971-4596-B306-A199E9C03784}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79BBC1DA-4971-4596-B306-A199E9C03784}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79BBC1DA-4971-4596-B306-A199E9C03784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06763078-697D-43D7-A230-1DE25090ED78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06763078-697D-43D7-A230-1DE25090ED78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06763078-697D-43D7-A230-1DE25090ED78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06763078-697D-43D7-A230-1DE25090ED78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
