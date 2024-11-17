@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeamlessBattle", "Mods\Seam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlwaysSpawnEnemies", "Mods\AlwaysSpawnEnemies\AlwaysSpawnEnemies.csproj", "{06763078-697D-43D7-A230-1DE25090ED78}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BetterBattleCamera", "Mods\BetterBattleCamera\BetterBattleCamera.csproj", "{28DE1A27-AB47-4C5E-B955-AC45F28D3B09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlternativeBattleCamera", "Mods\AlternativeBattleCamera\AlternativeBattleCamera.csproj", "{018D2340-BB7D-42FC-BD51-9182B5B9A307}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,10 +83,10 @@ Global
 		{06763078-697D-43D7-A230-1DE25090ED78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06763078-697D-43D7-A230-1DE25090ED78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06763078-697D-43D7-A230-1DE25090ED78}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28DE1A27-AB47-4C5E-B955-AC45F28D3B09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28DE1A27-AB47-4C5E-B955-AC45F28D3B09}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28DE1A27-AB47-4C5E-B955-AC45F28D3B09}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28DE1A27-AB47-4C5E-B955-AC45F28D3B09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{018D2340-BB7D-42FC-BD51-9182B5B9A307}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{018D2340-BB7D-42FC-BD51-9182B5B9A307}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{018D2340-BB7D-42FC-BD51-9182B5B9A307}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{018D2340-BB7D-42FC-BD51-9182B5B9A307}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
