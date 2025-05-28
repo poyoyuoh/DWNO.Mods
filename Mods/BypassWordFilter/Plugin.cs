@@ -11,7 +11,7 @@ public class Plugin : BasePlugin
 {
     internal const string GUID = "poyoyuoh.DWNO.BypassWordFilter";
     internal const string PluginName = "BypassWordFilter";
-    internal const string PluginVersion = "1.0.0";
+    internal const string PluginVersion = "1.1.0";
 
     public override void Load() =>
         Harmony.CreateAndPatchAll(typeof(Plugin));
@@ -51,6 +51,22 @@ public class Plugin : BasePlugin
                     if (__instance.m_nameEntry.m_wl.Count != 0)
                         __instance.m_nameEntry.m_wl = new List<string>();
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(TalkMain._NameEntryTask_d__55), "MoveNext")]
+    [HarmonyPostfix]
+    public static void TalkMain__NameEntryTask_d__55_MoveNext_Postfix(TalkMain._NameEntryTask_d__55 __instance)
+    {
+        if (__instance._entry_5__2 != null)
+        {
+            if (__instance._entry_5__2.m_bl != null)
+                if (__instance._entry_5__2.m_bl.Count != 0)
+                    __instance._entry_5__2.m_bl = new List<string>();
+
+            if (__instance._entry_5__2.m_wl != null)
+                if (__instance._entry_5__2.m_wl.Count != 0)
+                    __instance._entry_5__2.m_wl = new List<string>();
         }
     }
 }
